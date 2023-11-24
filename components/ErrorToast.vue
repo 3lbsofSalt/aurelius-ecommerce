@@ -4,6 +4,9 @@ defineProps(['visible', 'message']);
 const errorStore = useErrorStore();
 const { isError } = storeToRefs(errorStore);
 
+const isValidationError = ref(false);
+const errorText = ref('');
+
 function close() {
   errorStore.unset();
 }

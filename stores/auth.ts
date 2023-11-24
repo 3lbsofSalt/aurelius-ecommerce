@@ -1,42 +1,27 @@
 import { defineStore } from 'pinia';
 
 interface State {
-
+  email: string,
+  name: string,
+  id: string,
+  permissionGroup: string
 }
 
 export const useAuthStore = defineStore('auth', {
-
+  state: (): State => ({
+    email: '',
+    name: '',
+    id: '',
+    permissionGroup: 'Basic'
+  }),
   actions: {
-    async login (email: string, password: string) {
+    async checkForSession() {
+      const res = await useFetch('/api/session');
 
-      const res = await $fetch('/api/auth/login', {
-        method: 'post',
-        body: {
-          email,
-          password
-        }
-      });
-
-      console.log(res);
-
-      /*
-      commit('SET_USER', user);
-      this.$router.push('/');
-
-    } catch (error) {
-      if(!error.response) {
-        console.log(error);
-        return;
-      }
-      const data = error.response.data;
-      if(data.code === 'INVALID_USER') {
-        return 'invalid';
-      } else {
-        return 'unavailable';
-      }
-    }
-
-*/
+      this.email = res.data?.user?.email || '';
+      this.name = res.data?.user?.name || '';
+      this.id = res.data?.user?._id || '';
+      this.permissionGroup = res.data?.user?.permissionGroup || 'Basic';
     }
   }
 });

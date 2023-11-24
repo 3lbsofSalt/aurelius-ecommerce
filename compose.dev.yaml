@@ -1,0 +1,38 @@
+version: '3.3'
+
+services:
+  www:
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
+    image: aurelius_dev
+    container_name: aurelius_dev
+    command: npm run dev
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - "3000:3000"
+    networks:
+      app-network:
+        ipv4_address: 192.168.1.50
+
+  mongo:
+    container_name: mongo
+    image: mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - ./data:/data/db
+      - ./backup:/backup
+      - ./scripts:/scripts
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+    # User configured subnet to be able to set the ipv4 address for the www container
+    ipam:
+      config:
+        - subnet: 192.168.1.0/24

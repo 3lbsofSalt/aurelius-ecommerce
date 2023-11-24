@@ -4,9 +4,6 @@ const { signOut } = useAuth();
 import { useErrorStore } from '~/stores/error'; const errorStore = useErrorStore();
 const { isError } = storeToRefs(errorStore);
 
-const { data } = await useFetch('/api/test');
-console.log(data);
-
 const loggedIn = computed(() => isLoggedIn());
 const drawer = ref(false);
 
@@ -98,6 +95,7 @@ async function handleSignOut() {
                 >Sign In</v-list-item>
                 <v-list-item
                   class="sans-serif text-primary"
+                  href="/signup"
                 >Sign Up</v-list-item>
               </v-list>
               <v-list v-else>

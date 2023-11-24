@@ -10,10 +10,6 @@ export default defineNuxtConfig({
     MONGODB_NAME: 'dummy'
   },
 
-  typescript: {
-    shim: false
-  },
-
   css: [
     '~/assets/variables.scss'
   ],
@@ -24,10 +20,6 @@ export default defineNuxtConfig({
     '@sidebase/nuxt-auth',
     'nuxt-mongoose'
   ],
-
-  mongoose: {
-    uri: process.env.MONGODB_URL + '/' + process.env.DATABASE_NAME
-  },
 
   vuetify: {
     moduleOptions: {

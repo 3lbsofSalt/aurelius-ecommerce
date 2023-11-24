@@ -1,26 +1,26 @@
 <script setup lang="ts">
-import { useAuthStore } from '~/stores/auth';
-
-const { status, data, signOut, signIn } = useAuth();
+const { signIn } = useAuth();
 
 defineProps(['open', 'onClose']);
 
 const email = ref('');
 const password = ref('');
 
-
+async function handleLogin() {
+  const ret = await signIn('credentials', { callbackUrl: '/', email:email.value, password:password.value });
+}
 
 </script>
 
 <template>
-  <v-conainer class="fill-height">
+  <v-container class="fill-height">
     <v-row
       style="height: 70vh; "
       class="d-flex justify-center align-center"
     >
       <v-col></v-col>
       <v-col>
-        <v-form @submit.prevent>
+        <v-form @submit.prevent="handleLogin">
           <v-text-field
             v-model="email"
             label="Email"
@@ -45,21 +45,21 @@ const password = ref('');
             type="submit"
             size="x-large"
           >Login</v-btn>
-          <v-btn
-            block
-            class="text-primary sans-serif font-weight-bold mt-2"
-            color="primary"
-            variant="tonal"
-            rounded="0"
-            type="submit"
-            size="x-large"
-            append-icon="fab fa-github"
-            @click="() => signIn('github')"
-          >Sign In With Github</v-btn>
         </v-form>
+        <v-btn
+          block
+          class="text-primary sans-serif font-weight-bold mt-2"
+          color="primary"
+          variant="tonal"
+          rounded="0"
+          type="submit"
+          size="x-large"
+          append-icon="fab fa-github"
+          @click="() => signIn('github', { callbackUrl: '/' })"
+        >Sign In With Github</v-btn>
       </v-col>
       <v-col></v-col>
     </v-row>
-  </v-conainer>
+  </v-container>
 </template>
 

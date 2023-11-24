@@ -1,6 +1,6 @@
-import { defineMongooseModel } from '#nuxt/mongoose';
+import mongoose from 'mongoose';
 
-export const ImageSchema = defineMongooseModel('Image', {
+const Image = mongoose.Schema({
   location: {
     type: String,
     required: true
@@ -10,3 +10,5 @@ export const ImageSchema = defineMongooseModel('Image', {
     type: String
   }
 });
+
+export default mongoose.model('Image', Image);

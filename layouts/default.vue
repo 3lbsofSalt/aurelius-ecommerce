@@ -1,10 +1,10 @@
 <script setup lang="ts">
 const { signOut } = useAuth();
+const authStore = useAuthStore();
 
 import { useErrorStore } from '~/stores/error'; const errorStore = useErrorStore();
 const { isError } = storeToRefs(errorStore);
 
-const loggedIn = computed(() => isLoggedIn());
 const drawer = ref(false);
 
 async function handleSignOut() {
@@ -88,7 +88,7 @@ async function handleSignOut() {
             ></v-icon>
 
             <v-menu activator="parent">
-              <v-list v-if="!loggedIn">
+              <v-list v-if="!authStore.isLoggedIn">
                 <v-list-item
                   class="sans-serif text-primary"
                   href="/login"
@@ -99,6 +99,11 @@ async function handleSignOut() {
                 >Sign Up</v-list-item>
               </v-list>
               <v-list v-else>
+                <v-list-item
+                  v-if="authStore.isAdmin"
+                  class="sans-serif text-primary"
+                  href="/admin/privileges"
+                >Admin Panel</v-list-item>
                 <v-list-item
                   class="sans-serif text-primary"
                   @click="handleSignOut"

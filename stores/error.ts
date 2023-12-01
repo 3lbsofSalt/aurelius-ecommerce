@@ -18,10 +18,6 @@ export const useErrorStore = defineStore('error', {
   },
 
   actions: {
-    set(error: string) {
-      this.error = error;
-    },
-
     handleCatch(res:any, defaultError: string) {
       if(res?.response?.data.code === 'VALIDATOR_INVALID_REQUEST_BODY') {
         const data = res.response.data;

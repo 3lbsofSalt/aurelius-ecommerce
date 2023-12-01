@@ -13,7 +13,7 @@ authStore.checkForSession();
 
 <style>
 .sans-serif {
-  font-family: Arial !important;
+  font-family: 'Montserrat', Arial !important;
 }
 </style>
 

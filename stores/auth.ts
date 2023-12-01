@@ -1,4 +1,5 @@
 import { defineStore } from 'pinia';
+import type { userRes } from '../utils/useFetch.d.ts';
 
 interface State {
   email: string,
@@ -14,74 +15,31 @@ export const useAuthStore = defineStore('auth', {
     id: '',
     permissionGroup: 'Basic'
   }),
+  getters: {
+    isLoggedIn: (state) : boolean => {
+      if(!state.email || state.email == '') return false;
+      return true;
+    },
+    isAdmin: (state) : boolean => {
+      if(!state.permissionGroup || state.permissionGroup === 'Basic') {
+        return false;
+      }
+      return true;
+    }
+  },
   actions: {
     async checkForSession() {
-      const res = await useFetch('/api/session');
+      const { data, error } = await useFetch('/api/session');
 
-      this.email = res.data?.user?.email || '';
-      this.name = res.data?.user?.name || '';
-      this.id = res.data?.user?._id || '';
-      this.permissionGroup = res.data?.user?.permissionGroup || 'Basic';
+      if(error.value) {
+        console.log(error.value);
+        return this.$reset();
+      }
+
+      this.email = data.value.user.email || '';
+      this.name = data.value.user.name || '';
+      this.id = data.value.user._id || '';
+      this.permissionGroup = data.value.user.permissionGroup || 'Basic';
     }
   }
 });
-
-/*
-import cookies from 'js-cookie';
-
-export const state = () => ({
-  user: {}
-});
-
-export const getters = {
-
-  user: (state) => {
-    return state.user;
-  },
-
-  isLoggedIn: (state) => {
-    if(state.user?._id) {
-      return true;
-    } else {
-      return false;
-    }
-  },
-
-  isAdmin: (state) => {
-    return state.user?.isAdmin
-  },
-
-}
-
-export const mutations = {
-
-  SET_USER (state, user) {
-    state.user = user;
-  },
-
-  LOGOUT (state) {
-    state.user = null;
-  }
-
-};
-
-export const actions = {
-
-
-  logout ({ commit }) {
-    commit('LOGOUT');
-    this.$router.push('/');
-  },
-
-  access ({ rootState }, params) {
-    this.$fetch.$post('/auth/privileges/access', {
-      path: params.path
-    }).catch((error) => {
-      this.$router.push('/');
-    });
-  }
-
-};
-*/
-
-

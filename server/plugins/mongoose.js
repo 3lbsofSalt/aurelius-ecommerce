@@ -1,10 +1,13 @@
 import mongoose from 'mongoose';
+import User from '../models/User.ts';
 
 export default defineNitroPlugin(async () => {
 
   console.log('I run');
 
-  mongoose.connect(`${process.env.MONGODB_URL}/${process.env.DATABASE_NAME}`, {
+  console.log(process.env.MONGODB_URL);
+  console.log(process.env.MONGODB_NAME);
+  mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_NAME}`, {
     /*
     useNewUrlParser: true,
     useUnifiedTopology: true,
@@ -30,6 +33,9 @@ export default defineNitroPlugin(async () => {
     import('../models/Settings.js')
   ]);
   //Tie each schema to a collection for use in downstream routes
+  
+  const users = await User.find({});
+  console.log(users);
 
   return db;
 });

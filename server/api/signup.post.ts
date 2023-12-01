@@ -1,8 +1,10 @@
 import { hashPassword } from '~/utils/auth';
 import User from '../models/User';
 import safeAwait from 'safe-await';
+import { useLogger } from '@nuxt/kit';
 
 export default defineEventHandler(async (event) => {
+  const logger = useLogger();
   const body = await readBody(event);
   const {
     email,
@@ -16,7 +18,6 @@ export default defineEventHandler(async (event) => {
   }));
 
   if(getError) {
-    console.log(getError);
     return { status: 500, error: 'There was an error' };
   }
 
@@ -24,9 +25,7 @@ export default defineEventHandler(async (event) => {
     return { status: 400, error: 'Email Already Exists' };
   }
 
-  console.log(password);
   const hash = hashPassword(password);
-  console.log(hash);
 
   const [error] = await safeAwait(User.create({
     email,
@@ -36,7 +35,7 @@ export default defineEventHandler(async (event) => {
   }));
 
   if(error) {
-    console.log(error);
+    logger.error(error);
     return { status: 500, error: 'There was an error' };
   }
 

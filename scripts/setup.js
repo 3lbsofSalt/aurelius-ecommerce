@@ -1,77 +1,61 @@
-import 'dotenv/config.js';
-
-import mongoose from 'mongoose';
-const db = mongoose.connection;
-
-console.log(process.env.DATABASE_URL + ":" + process.env.DATABASE_PORT + '/' + process.env.DATABASE_NAME);
-mongoose.connect(process.env.DATABASE_URL + ':' + process.env.DATABASE_PORT + '/' + process.env.DATABASE_NAME, { });
-
+// Update the db name here before running.
+// If you're using the mongo docker image this will work perfectly as is.
+const db = connect('127.0.0.1:27017/aurelius');
 console.log("Connected...")
 
 /*
  * Setup the different features.
  * To disable a feature, comment out the corresponding privilege before running:
- * npm run setup
+ * `mongosh setup.js`
  */
-import '../models/RoutePrivileges.js';
-const RoutePrivileges = mongoose.model('RoutePrivileges');
 
 const routes = [];
 
 console.log("Creating Privileges Group");
-routes.push(await RoutePrivileges.create({
+db.routeprivileges.insertOne({
   "name": "Privileges",
   "groups": []
-}));
+});
 
 console.log("Creating Users Group");
-routes.push(await RoutePrivileges.create({
+db.routeprivileges.insertOne({
   "name": "Users",
   "groups": []
-}));
+});
 
 console.log("Creating User Update Group");
-routes.push(await RoutePrivileges.create({
+db.routeprivileges.insertOne({
   "name": "Update Users",
   "groups": []
-}));
+});
 
 console.log("Creating Admin Panel Group");
-routes.push(await RoutePrivileges.create({
+db.routeprivileges.insertOne({
   "name": "Admin Panel",
   "groups": []
-}));
+});
 
 console.log("Creating Inventory Group");
-routes.push(await RoutePrivileges.create({
+db.routeprivileges.insertOne({
   "name": "Inventory",
   "groups": []
-}));
+});
 
 console.log("Creating Navigation Group");
-routes.push(await RoutePrivileges.create({
+db.routeprivileges.insertOne({
   "name": "Navigation",
   "groups": []
-}));
+});
 
 console.log("Creating Orders Group");
-routes.push(await RoutePrivileges.create({
+db.routeprivileges.insertOne({
   "name": "Orders",
   "groups": []
-}));
+});
 
 console.log("Creating Settings Group");
-routes.push(await RoutePrivileges.create({
+db.routeprivileges.insertOne({
   "name": "Settings",
   "groups": []
-}));
+});
 
-Promise.all(routes)
-  .then(() => {
-    console.log('Closing Database Connection.');
-    mongoose.connection.close();
-    console.log('Closed');
-
-    console.log("Exiting...");
-    process.exit();
-  });

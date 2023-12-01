@@ -8,7 +8,8 @@ import MonSeq from 'mongoose-sequence';
 const AutoIncrement = MonSeq(mongoose);
 */
 
-interface UserI {
+export interface UserI {
+  _id: string,
   email: string,
   name?: string,
   phone?: string,
@@ -93,4 +94,4 @@ User.methods = {
   }
 }
 
-export default model('User', User);
+export default model<UserI>('User', User);

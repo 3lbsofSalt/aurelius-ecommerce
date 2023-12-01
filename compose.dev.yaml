@@ -15,7 +15,7 @@ services:
       - "3000:3000"
     networks:
       app-network:
-        ipv4_address: 192.168.1.50
+        ipv4_address: 192.168.3.50
 
   mongo:
     container_name: mongo
@@ -35,4 +35,4 @@ networks:
     # User configured subnet to be able to set the ipv4 address for the www container
     ipam:
       config:
-        - subnet: 192.168.1.0/24
+        - subnet: 192.168.3.0/24

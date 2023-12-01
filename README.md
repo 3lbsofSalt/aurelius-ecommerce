@@ -1,8 +1,22 @@
-# Nuxt 3 Minimal Starter
+# Aurelius E-Commerce Software
+
+## Setup
+### Development
+There is a docker-compose file located in the root directory of the project.
+For running on your local machine, you can run `docker-compose -f compose.dev.yaml`.
+To then setup the db, create a user account with the website, which should be working,
+then review the scripts in the scripts directory to ensure that they will make the correct changes
+and run them from inside of the mongo docker container by running `mongosh relevantScript.js`.
+
+### Production
+This repo is currently not set up to have a production build.
+
+
+## Nuxt 3 Minimal Starter
 
 Look at the [Nuxt 3 documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
 
-## Setup
+### Setup
 
 Make sure to install the dependencies:
 
@@ -20,7 +34,7 @@ yarn install
 bun install
 ```
 
-## Development Server
+### Development Server
 
 Start the development server on `http://localhost:3000`:
 
@@ -38,7 +52,7 @@ yarn dev
 bun run dev
 ```
 
-## Production
+### Production
 
 Build the application for production:
 

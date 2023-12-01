@@ -1,5 +1,5 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
-import defaultTheme from './theme';
+import defaultTheme from './assets/theme';
 export default defineNuxtConfig({
   devtools: { enabled: true },
 

@@ -11,7 +11,7 @@
 - [x] Privilege Groups
     - [ ] Check Privileges to Access Page
     - [x] Validate Input (Client Groups)
-    - [ ] Validate Input (Server Groups & Server Location Permission)
+    - [x] Validate Input (Server Groups & Server Location Permission)
 - [ ] Navigation
 - [ ] Settings
 ### Cart and Checkout Finished - Dec 16th

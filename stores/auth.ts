@@ -29,17 +29,19 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     async checkForSession() {
-      const { data, error } = await useFetch('/api/session');
+      const { data: user, error } = await useFetch('/api/session');
+
+      console.log(user.value);
 
       if(error.value) {
         console.log(error.value);
         return this.$reset();
       }
 
-      this.email = data.value.user.email || '';
-      this.name = data.value.user.name || '';
-      this.id = data.value.user._id || '';
-      this.permissionGroup = data.value.user.permissionGroup || 'Basic';
+      this.email = user.value.email || '';
+      this.name = user.value.name || '';
+      this.id = user.value._id || '';
+      this.permissionGroup = user.value.permissionGroup || 'Basic';
     }
   }
 });

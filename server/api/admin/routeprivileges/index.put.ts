@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  if(!isAlphanumeric(name) || !groups.every((group) => privilegeGroups.find((privGroup) => privGroup.group === group))) {
+  if(!isAlphanumeric(name)) {
     logger.error("The request body was poorly formed to update the privilege groups.");
     throw createError({
       statusCode: 422,
@@ -46,8 +46,10 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // Filter out any groups that aren't legal. If someone deletes a group and then tries to update a route, that group will no longer be available.
+  const privGroups = groups.filter((group) => privilegeGroups.find((privGroup) => privGroup.group === group));
 
-  const [error] = await safeAwait(RoutePrivileges.updateOne({ name }, { groups }));
+  const [error] = await safeAwait(RoutePrivileges.updateOne({ name }, { groups: privGroups }));
 
   if(error) {
     logger.error(error);

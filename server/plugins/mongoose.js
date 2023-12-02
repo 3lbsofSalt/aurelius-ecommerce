@@ -22,15 +22,15 @@ export default defineNitroPlugin(async () => {
   db.once('open', function() {});
 
   await Promise.all([
-    import('../models/User.ts'),
-    import('../models/Privileges.js'),
-    import('../models/RoutePrivileges.js'),
-    import('../models/Tag.js'),
-    import('../models/InventoryItem.js'),
-    import('../models/Image.js'),
-    import('../models/NavigationCategory.js'),
-    import('../models/Order.js'),
-    import('../models/Settings.js')
+    import('../models/User'),
+    import('../models/Privileges'),
+    import('../models/RoutePrivileges'),
+    import('../models/Tag'),
+    import('../models/InventoryItem'),
+    import('../models/Image'),
+    import('../models/NavigationCategory'),
+    import('../models/Order'),
+    import('../models/Settings')
   ]);
   //Tie each schema to a collection for use in downstream routes
   

@@ -3,6 +3,13 @@ definePageMeta({
   layout: 'admin'
 });
 
+const { data: routePrivs, error } = await useFetch('/api/checkAuthRoutes');
+console.log(routePrivs.value);
+if(error.value) {
+  console.log(error.value);
+  navigateTo('/');
+}
+
 const errorStore = useErrorStore();
 
 // This is all for managing the groups

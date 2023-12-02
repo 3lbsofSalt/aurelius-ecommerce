@@ -9,7 +9,10 @@ export default eventHandler(async (event) => {
   const session = await getServerSession(event);
 
   if(!session) {
-    return { status: 401, user: undefined };
+    throw createError({
+      statusCode: 401,
+      statusMessage: 'Unauthenticated'
+    });
   }
 
   const [error, user] = await safeAwait(User.findOne({ email: session.user.email }, '-hash -activationToken -resetToken'));
@@ -17,5 +20,5 @@ export default eventHandler(async (event) => {
     logger.error(error);
   }
 
-  return { status: 200, user }
+  return user;
 });

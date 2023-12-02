@@ -18,11 +18,17 @@ export default defineEventHandler(async (event) => {
   }));
 
   if(getError) {
-    return { status: 500, error: 'There was an error' };
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Server error'
+    });
   }
 
   if(users?.length) {
-    return { status: 400, error: 'Email Already Exists' };
+    throw createError({
+      statusCode: 400,
+      statusMessage: 'The email already exists'
+    });
   }
 
   const hash = hashPassword(password);
@@ -36,8 +42,9 @@ export default defineEventHandler(async (event) => {
 
   if(error) {
     logger.error(error);
-    return { status: 500, error: 'There was an error' };
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Server Error'
+    });
   }
-
-  return { status: 200 };
 });

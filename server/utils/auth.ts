@@ -19,7 +19,7 @@ export const hasRouteAccess = async (event: any, route: string) : Promise<boolea
 
   const [error, routePriv] = await safeAwait(RoutePrivileges.findOne({name: route}));
 
-  if(error) {
+  if(error || !routePriv) {
     logger.error(error);
     return false;
   }

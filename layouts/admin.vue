@@ -21,6 +21,12 @@ onMounted(async () => {
           class="sans-serif"
         ></v-list-item>
         <v-list-item
+          href="/admin/inventory"
+          class="sans-serif"
+          prepend-icon="fas fa-boxes"
+          title="Inventory"
+        ></v-list-item>
+        <v-list-item
           href="/admin/users"
           class="sans-serif"
           prepend-icon="fas fa-user"

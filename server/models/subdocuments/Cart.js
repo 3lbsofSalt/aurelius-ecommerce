@@ -1,9 +1,9 @@
-import mongoose from 'mongoose';
-import { InventoryItem } from '../InventoryItem.js';
+import { Schema, model } from 'mongoose';
+import { InventoryItem } from '../InventoryItem';
 
 import safeAwait from 'safe-await';
 
-const Cart = mongoose.Schema({
+const Cart = new Schema({
   items: [{
     item: InventoryItem,
     // Fields are a 2-dimensional array as each item in the cart can have more than one field to fill out
@@ -11,7 +11,7 @@ const Cart = mongoose.Schema({
     // The first array contains sets of unique fields, the inner array contains individual fields
     fields: [{
       fieldSet: [{
-        _id: mongoose.Schema.Types.ObjectId,
+        _id: Schema.Types.ObjectId,
         description: String,
         name: String,
         required: Boolean,
@@ -74,7 +74,7 @@ Cart.methods = {
     const inventoryItemProms = [];
 
     for (const item in items) {
-      inventoryItemProms.push(mongoose.model('InventoryItem').findOne({_id: items[item].item._id}));
+      inventoryItemProms.push(model('InventoryItem').findOne({_id: items[item].item._id}));
       this.items[item].fields = this.items[item].fields.filter((fields) => {
         return fields?.quantity && (typeof fields.quantity) === 'number' && fields?.fieldSet?.length > 0;
       });
@@ -137,4 +137,4 @@ Cart.methods = {
 
 export default Cart;
 
-mongoose.model('Cart', Cart);
+model('Cart', Cart);

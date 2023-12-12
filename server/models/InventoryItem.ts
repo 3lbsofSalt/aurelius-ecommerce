@@ -1,6 +1,43 @@
-import mongoose from 'mongoose';
+import { Schema, model } from 'mongoose';
+import type { TagI } from './Tag';
+import counter, { type counterI } from './idCounter';
 
-export const InventoryItem = mongoose.Schema({
+export interface WeightI {
+  units: 'pounds' | 'ounces' | 'grams',
+  quantity: number
+}
+
+export interface InventoryItemI {
+  _id: number,
+  name: string,
+  description?: string,
+  price: number,
+  tags: TagI[],
+  dateAdded?: Date,
+  dateModified?: Date,
+  timesSold?: number,
+  images?: [{
+    name: string,
+    altText?: string
+  }],
+  baseImagePath?: string,
+  customerInputFields?: [{
+    type: string,
+    required: boolean,
+    description?: string,
+    name: string
+  }],
+  weight?: WeightI,
+  active?: boolean
+}
+
+
+export const InventoryItem = new Schema<InventoryItemI>({
+  _id: {
+    type: Number,
+    required: true,
+    unique: true
+  },
   name: {
     type: String,
     required: true
@@ -13,7 +50,7 @@ export const InventoryItem = mongoose.Schema({
 
   tags: [{
     _id: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: Schema.Types.ObjectId,
       refs: 'Tag'
     },
     name: {
@@ -72,13 +109,30 @@ export const InventoryItem = mongoose.Schema({
       required: true,
       default: '1'
     },
+  },
+  active: {
+    type: Boolean,
+    default: true
   }
 });
 
 InventoryItem.methods = {
-  getSafeImageUrl: function(imageIndex) {
+  getSafeImageUrl: function(imageIndex: number) {
     return process.env.DIGITAL_OCEAN_SPACES_BUCKET_URL_PREFIX + encodeURI(this.baseImagePath + this.images[imageIndex].name)
   }
 };
 
-export default mongoose.model('InventoryItem', InventoryItem);
+
+InventoryItem.pre('save', function(next) {
+  const doc = this;
+  if(!doc.isNew) next();
+  counter.findByIdAndUpdate({_id: 'inventory_item_id'}, {$inc: {seq: 1}, upsert: true}, function(error : any, nextId: counterI) {
+    if(error) throw error;
+    doc._id = nextId.seq;
+    next();
+  });
+
+});
+
+
+export default model<InventoryItemI>('InventoryItem', InventoryItem);

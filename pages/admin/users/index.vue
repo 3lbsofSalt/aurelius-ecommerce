@@ -1,8 +1,14 @@
 <script setup lang="ts">
+const errorStore = useErrorStore();
 import type { UserI } from '~/server/models/User';
 definePageMeta({
   layout: 'admin'
-})
+});
+
+const { data: routePrivs, error } = await useFetch('/api/checkAuthRoutes');
+if(error.value || !routePrivs.value.includes('Users')) {
+  navigateTo('/');
+}
 
 const headers = [
   { title: 'Name', value: 'name' },
@@ -12,14 +18,17 @@ const headers = [
   { title: 'Actions', value: 'actions'}
 ]
 
-const { data: users } = await useFetch<UserI[]>('/api/admin/users');
+const { data: users, error: usersError } = await useFetch<UserI[]>('/api/admin/users');
+if(usersError) {
+  errorStore.error = 'There was an error getting the users.';
+}
 </script>
 
 <template>
   <v-card>
     <v-data-table
       :headers="headers"
-      :items="users"
+      :items="users || []"
       class="sans-serif"
     >
       <template v-slot:item.actions="{ item }">

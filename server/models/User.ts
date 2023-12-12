@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose';
 import Cart from './subdocuments/Cart.js';
 import safeAwait from 'safe-await';
+import counter, { type counterI } from './idCounter';
 
 // Auto Increment Functionality
  /*
@@ -9,7 +10,7 @@ const AutoIncrement = MonSeq(mongoose);
 */
 
 export interface UserI {
-  _id: string,
+  _id: number,
   email: string,
   name?: string,
   phone?: string,
@@ -35,7 +36,11 @@ export interface UserI {
 }
 
 const User = new Schema<UserI>({
-//  _id: Number,
+  _id: {
+    type: Number,
+    required: true,
+    unique: true
+  },
   email: { 
     type: String, 
     required: true, 
@@ -93,5 +98,15 @@ User.methods = {
     return this.cart;
   }
 }
+
+User.pre('save', function(next) {
+  const doc = this;
+  if(!doc.isNew) next();
+  counter.findByIdAndUpdate({_id: 'user_id'}, {$inc: {seq: 1}, upsert: true}, function(error : any, nextId: counterI) {
+    if(error) throw error;
+    doc._id = nextId.seq;
+    next();
+  });
+});
 
 export default model<UserI>('User', User);

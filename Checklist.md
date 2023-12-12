@@ -4,12 +4,16 @@
 ### Admin Panel Migrated - Dec 9th
 - [ ] Orders
 - [ ] Inventory
+    - [ ] Item Create
+    - [ ] Item Remove
+    - [ ] Item Edit
 - [ ] User management
-    - [ ] Managing user group is not allowed if you don't have correct permissions
-    - [ ] Form validation (client)
-    - [ ] Form validation (server)
+    - [x] Managing user group is not allowed if you don't have correct permissions
+    - [x] Form validation (client)
+    - [x] Form validation (server)
+    - [ ] Pagination Eventually (After Inventory Page)
 - [x] Privilege Groups
-    - [ ] Check Privileges to Access Page
+    - [x] Check Privileges to Access Page
     - [x] Validate Input (Client Groups)
     - [x] Validate Input (Server Groups & Server Location Permission)
 - [ ] Navigation

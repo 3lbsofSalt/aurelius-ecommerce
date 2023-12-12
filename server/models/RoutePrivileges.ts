@@ -1,6 +1,6 @@
 import { Schema, model } from 'mongoose';
 
-interface RoutePrivilegesI {
+export interface RoutePrivilegesI {
   name: string,
   groups: string[]
 }

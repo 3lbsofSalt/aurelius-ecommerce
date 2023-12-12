@@ -23,12 +23,6 @@ export default defineEventHandler(async (event) => {
     groups 
   } : data = body;
 
-  // Validation
-  // No need to validate the name besides a classic alphanumeric because if the name
-  // is wrong it won't change anything.
-  logger.log(name);
-  logger.log(groups);
-
   const [groupError, privilegeGroups] = await safeAwait(Privileges.find({}));
   if(groupError) {
     logger.error("There was an error getting the groups for validation purposes.");
@@ -38,6 +32,9 @@ export default defineEventHandler(async (event) => {
     });
   }
 
+  // Validation
+  // No need to validate the name besides a classic alphanumeric because if the name
+  // is wrong it won't change anything.
   if(!isAlphanumeric(name)) {
     logger.error("The request body was poorly formed to update the privilege groups.");
     throw createError({

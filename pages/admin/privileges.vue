@@ -1,19 +1,20 @@
 <script setup lang="ts">
+import type { PrivilegeI } from '~/server/models/Privileges';
+import type { RoutePrivilegesI } from '~/server/models/RoutePrivileges';
+
 definePageMeta({
   layout: 'admin'
 });
 
 const { data: routePrivs, error } = await useFetch('/api/checkAuthRoutes');
-console.log(routePrivs.value);
-if(error.value) {
-  console.log(error.value);
+if(error.value || !routePrivs.value.includes('Privileges')) {
   navigateTo('/');
 }
 
 const errorStore = useErrorStore();
 
 // This is all for managing the groups
-const { data: privilegeGroups, refresh: refreshGroups } = await useFetch('/api/admin/privilegegroups');
+const { data: privilegeGroups, refresh: refreshGroups } = await useFetch<PrivilegeI[]>('/api/admin/privilegegroups');
 const group = ref('')
 const makingGroup = ref(false);
 
@@ -46,20 +47,18 @@ function openGroupCreate() { makingGroup.value = true; }
 // This is all for managing the groups that are attached to routes
 const editingGroup = ref(false);
 const groupBeingEdited = ref('');
-const groupBeingEditedPrivileges = ref([]);
+const groupBeingEditedPrivileges : Ref<string[]> = ref([]);
 
-const { data: routePrivileges, refresh: refreshRoutePrivileges } = await useFetch('/api/admin/routeprivileges');
-
-console.log(routePrivileges.value);
+const { data: routePrivileges, refresh: refreshRoutePrivileges } = await useFetch<RoutePrivilegesI[]>('/api/admin/routeprivileges');
 
 function startEditingGroup(routeToEdit:string) { 
   editingGroup.value = true; 
   groupBeingEdited.value = routeToEdit; 
-  groupBeingEditedPrivileges.value = [...getCurrentlyEditedRoute(routeToEdit)] || [];
+  groupBeingEditedPrivileges.value = [...(getCurrentlyEditedRoute(routeToEdit) || [])];
 }
 
 function getCurrentlyEditedRoute(routeToEdit: string) {
-  return routePrivileges.value.find((route) => route.name === routeToEdit).groups;
+  return routePrivileges?.value?.find((route) => route.name === routeToEdit)?.groups;
 }
 
 function isChecked(groupToCheck: string) { 
@@ -76,8 +75,6 @@ function toggleGroup(groupToToggle: string) {
 }
 
 async function saveRoutePrivileges() {
-  console.log(groupBeingEdited.value);
-  console.log(groupBeingEditedPrivileges.value);
   $fetch('/api/admin/routeprivileges', {
     method: 'put',
     body: {

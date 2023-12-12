@@ -1,7 +1,6 @@
 import { NuxtAuthHandler } from '#auth';
 import CredentialsProvider from "next-auth/providers/credentials";
 import GithubProvider from 'next-auth/providers/github';
-import { hashPassword } from '~/utils/auth';
 import safeAwait from 'safe-await';
 import { useLogger } from '@nuxt/kit';
 

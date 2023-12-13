@@ -1,5 +1,5 @@
 export const alphaNumericRules = [
-  (v: string) => isAlphanumeric(v) || 'Field can only have numbers, letters, spaces, and underscores.'
+  (v: string) => isAlphanumeric(v) || 'Field can only have numbers, letters, spaces, !\'s, ?\'s, and underscores.'
 ]
 
 export const emailRules = [
@@ -14,11 +14,16 @@ export const passwordRules = [
 ];
 
 export const phoneNumberRules = [
-  (v: string) => !v || isPhoneNumber(v) || 'The phone number must either be empty or valid.'
+  (v: string) => !!v || isPhoneNumber(v) || 'The phone number must either be empty or valid.'
+];
+
+export const requiredCurrencyRules = [
+  (v: string) => !!v || 'Currency is required',
+  (v: string) => isCurrency(v) || 'Currency must be valid and positive'
 ];
 
 export const isAlphanumeric = (input : string) : boolean => {
-  return /^[a-zA-Z0-9_ ]+$/.test(input);
+  return /^[a-zA-Z0-9_ !\?]+$/.test(input);
 }
 
 export const isEmail = (input :string) : boolean => {
@@ -31,5 +36,9 @@ export const isValidPassword = (input : string) : boolean => {
 
 export const isPhoneNumber = (input : string) : boolean => {
   return /^(1\s?)?(\d{3}|\(\d{3}\))[\s\-]?\d{3}[\s\-]?\d{4}$/.test(input);
+}
+
+export const isCurrency = (input : string) : boolean => {
+  return /(?:^[1-9]([0-9]+)?(?:\.[0-9]{1,2})?$)|(?:^(?:0)$)|(?:^[0-9]\.[0-9](?:[0-9])?$)/.test(input);
 }
 

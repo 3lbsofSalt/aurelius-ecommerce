@@ -7,6 +7,18 @@ export interface WeightI {
   quantity: number
 }
 
+export interface CustomInputFieldsI {
+  type: string,
+  required: boolean,
+  description?: string,
+  name: string
+}
+
+export interface InventoryImageI {
+  name: string,
+  altText: string
+}
+
 export interface InventoryItemI {
   _id: number,
   name: string,
@@ -16,17 +28,9 @@ export interface InventoryItemI {
   dateAdded?: Date,
   dateModified?: Date,
   timesSold?: number,
-  images?: [{
-    name: string,
-    altText?: string
-  }],
+  images?: InventoryImageI[],
   baseImagePath?: string,
-  customerInputFields?: [{
-    type: string,
-    required: boolean,
-    description?: string,
-    name: string
-  }],
+  customerInputFields?: CustomInputFieldsI[],
   weight?: WeightI,
   active?: boolean
 }

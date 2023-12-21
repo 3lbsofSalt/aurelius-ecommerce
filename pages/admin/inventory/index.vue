@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { InventoryItemI } from '~/server/models/InventoryItem';
 import type { TagI } from '~/server/models/Tag';
+import { baseImageUrl } from '~/utils/imageRetrieval';
 
 const errorStore = useErrorStore();
 definePageMeta({
@@ -13,12 +14,13 @@ if(permissionsError.value || !routePrivs.value.includes('Inventory')) {
 }
 
 const headers = [
+  { title: 'Image', value: 'image' },
   { title: 'Id', value: '_id' },
   { title: 'Name', value: 'name' },
   { title: 'Price', value: 'price' },
 ];
 
-const { data: inventoryItems, error: inventoryError, refresh: inventoryRefresh } = await useFetch<InventoryItemI[]>('/api/admin/inventory');
+const { data: inventoryItems, error: inventoryError, refresh: inventoryRefresh } = await useFetch<InventoryItemI[]>('/api/inventory');
 if(inventoryError) {
   errorStore.error = 'There was an error getting the inventory items.';
 }
@@ -30,7 +32,7 @@ function stopCreatingItem() {
 }
 function startCreatingItem() { creatingItem.value = true; }
 
-const { data: tags, error: tagError, refresh: refreshTags } = await useFetch<TagI[]>('/api/admin/tags');
+const { data: tags, error: tagError, refresh: refreshTags } = await useFetch<TagI[]>('/api/tags');
 if(tagError) {
   errorStore.error = 'There was an error getting the tags';
 }
@@ -61,6 +63,10 @@ function deleteTag(id: string) {
     .then(() => { refreshTags(); })
     .catch(() => { errorStore.error = 'There was an error deleting the tag.'; })
     .finally(() => { creatingTag.value = false; });
+}
+
+function goToItem(_:any, row : any) {
+  navigateTo('/admin/inventory/' + row.item._id);
 }
 </script>
 
@@ -125,14 +131,18 @@ function deleteTag(id: string) {
       :headers="headers"
       :items="inventoryItems || []"
       class="sans-serif"
+      @click:row="goToItem"
+      hover
     >
-      <template v-slot:item.actions="{ item }">
-        <v-btn
-          size="small"
-          variant="text"
-          icon="fas fa-pen"
-          :href="'/admin/inventory/' + item._id"
-        ></v-btn>
+      <template v-slot:item.image="{ item }">
+        <v-avatar
+          rounded="0"
+        >
+          <v-img 
+            cover
+            :src="baseImageUrl(item.baseImagePath, item.images[0])"
+          />
+        </v-avatar>
       </template>
     </v-data-table>
   </v-card>
@@ -140,7 +150,7 @@ function deleteTag(id: string) {
 
   <ContainersAdminCreateInventoryItem 
     :open="creatingItem"
-    :onClose="stopCreatingItem"
+    @close="stopCreatingItem"
   />
   <v-btn
     icon="fas fa-plus"

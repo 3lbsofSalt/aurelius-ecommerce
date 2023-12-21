@@ -1,20 +1,26 @@
 import { Schema, model } from 'mongoose';
 import type { TagI } from './Tag';
+import safeAwait from 'safe-await';
 import counter, { type counterI } from './idCounter';
+
+export const validWeightUnits = ['pounds', 'ounces', 'grams'];
 
 export interface WeightI {
   units: 'pounds' | 'ounces' | 'grams',
   quantity: number
 }
 
+export const validInputTypes = ['download', 'text'];
+
 export interface CustomInputFieldsI {
-  type: string,
+  type: 'download' | 'text',
   required: boolean,
   description?: string,
   name: string
 }
 
 export interface InventoryImageI {
+  _id?: string,
   name: string,
   altText: string
 }
@@ -39,7 +45,6 @@ export interface InventoryItemI {
 export const InventoryItem = new Schema<InventoryItemI>({
   _id: {
     type: Number,
-    required: true,
     unique: true
   },
   name: {
@@ -127,14 +132,19 @@ InventoryItem.methods = {
 };
 
 
-InventoryItem.pre('save', function(next) {
+InventoryItem.pre('save', async function(next) {
   const doc = this;
   if(!doc.isNew) next();
-  counter.findByIdAndUpdate({_id: 'inventory_item_id'}, {$inc: {seq: 1}, upsert: true}, function(error : any, nextId: counterI) {
-    if(error) throw error;
+  const [error, nextId] = await safeAwait(counter.findByIdAndUpdate({_id: 'inventory_item_id'}, {$inc: {seq: 1}, new: true, upsert: true}));
+  console.log(nextId);
+  if(error) throw error;
+  if(nextId == null) {
+    const seq = await counter.create({_id: 'inventory_item_id', seq: 0});
+    doc._id = seq.seq;
+  } else {
     doc._id = nextId.seq;
-    next();
-  });
+  }
+  next();
 
 });
 

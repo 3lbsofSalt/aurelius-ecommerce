@@ -11,17 +11,19 @@ if(error.value || !routePrivs.value.includes('Users')) {
 }
 
 const headers = [
+  { title: 'Id', value:'_id', align: 'start' },
   { title: 'Name', value: 'name' },
   { title: 'Email', value: 'email' },
   { title: 'Phone', value: 'phone' },
   { title: 'Permissions', value: 'permissionGroup' },
-  { title: 'Actions', value: 'actions'}
 ]
 
 const { data: users, error: usersError } = await useFetch<UserI[]>('/api/admin/users');
 if(usersError) {
   errorStore.error = 'There was an error getting the users.';
 }
+
+function goToUser(_: any, row: any) { navigateTo('/admin/users/' + row.item._id); }
 </script>
 
 <template>
@@ -30,15 +32,8 @@ if(usersError) {
       :headers="headers"
       :items="users || []"
       class="sans-serif"
-    >
-      <template v-slot:item.actions="{ item }">
-        <v-btn
-          size="small"
-          variant="text"
-          icon="fas fa-pen"
-          :href="'/admin/users/' + item._id"
-        ></v-btn>
-      </template>
-    </v-data-table>
+      @click:row="goToUser"
+      hover
+    > </v-data-table>
   </v-card>
 </template>

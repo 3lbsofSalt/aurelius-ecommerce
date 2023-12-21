@@ -19,24 +19,38 @@ onMounted(async () => {
       <v-list nav>
         <v-list-item
           class="sans-serif"
-        ></v-list-item>
+          to="/"
+          prepend-icon="fas fa-house"
+        >Go Home</v-list-item>
         <v-list-item
-          href="/admin/inventory"
+          to="/admin/inventory"
           class="sans-serif"
           prepend-icon="fas fa-boxes"
           title="Inventory"
         ></v-list-item>
         <v-list-item
-          href="/admin/users"
+          to="/admin/users"
           class="sans-serif"
           prepend-icon="fas fa-user"
           title="Users"
         ></v-list-item>
         <v-list-item
-          href="/admin/privileges"
+          to="/admin/privileges"
           class="sans-serif"
           prepend-icon="fas fa-key"
           title="Privileges"
+        ></v-list-item>
+        <v-list-item
+          to="/admin/navigation"
+          class="sans-serif"
+          prepend-icon="fas fa-compass"
+          title="Navigation"
+        ></v-list-item>
+        <v-list-item
+          to="/admin/settings"
+          class="sans-serif"
+          prepend-icon="fas fa-gears"
+          title="Settings"
         ></v-list-item>
       </v-list>
     </v-navigation-drawer>

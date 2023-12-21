@@ -1,5 +1,14 @@
-export const alphaNumericRules = [
+export const requiredAlphaNumericRules = [
+  (v: string) => !!v || 'This field is required',
   (v: string) => isAlphanumeric(v) || 'Field can only have numbers, letters, spaces, !\'s, ?\'s, and underscores.'
+]
+
+export const alphaNumericRules = [
+  (v: string) => !v || isAlphanumeric(v) || 'Field can only have numbers, letters, spaces, !\'s, ?\'s, and underscores.'
+]
+
+export const wideRangeAlphaNumericRules = [
+  (v: string) => !v || isWideRangeAlphanumeric(v) || 'Field can only have numbers, letters, spaces, !\'s, ?\'s, and underscores.'
 ]
 
 export const emailRules = [
@@ -19,11 +28,32 @@ export const phoneNumberRules = [
 
 export const requiredCurrencyRules = [
   (v: string) => !!v || 'Currency is required',
-  (v: string) => isCurrency(v) || 'Currency must be valid and positive'
+  (v: string) => !v || isCurrency(v) || 'Currency must be valid and positive. If it is a cent amount, lead it with a 0 like: 0.69'
 ];
 
+export const currencyRules = [
+  (v: string) => !v || isCurrency(v) || 'Currency must be valid and positive. If it is a cent amount, lead it with a 0 like: 0.69'
+];
+
+export const positiveIntegerRules = [
+  (v: string) => !v || isPositiveInteger(v) || 'Must be a positive integer (cannot be 0)'
+]
+
+export const requiredPositiveIntegerRules = [
+  (v: string) => !!v || 'This field is required',
+  (v: string) => !v || isPositiveInteger(v) || 'Must be a positive integer (cannot be 0)'
+]
+
+export const positiveDecimalLessThanOneRules = [
+  (v: string) => !v || isPositiveDecimalLessThanOne(v) || 'Must be a positive decimal to two places that is less than one (can be 0)'
+]
+
 export const isAlphanumeric = (input : string) : boolean => {
-  return /^[a-zA-Z0-9_ !\?]+$/.test(input);
+  return /^[a-zA-Z0-9_ !\?\.]+$/.test(input);
+}
+
+export const isWideRangeAlphanumeric = (input : string) : boolean => {
+  return /^[a-zA-Z0-9_ ,'!\?\.]+$/.test(input);
 }
 
 export const isEmail = (input :string) : boolean => {
@@ -42,3 +72,10 @@ export const isCurrency = (input : string) : boolean => {
   return /(?:^[1-9]([0-9]+)?(?:\.[0-9]{1,2})?$)|(?:^(?:0)$)|(?:^[0-9]\.[0-9](?:[0-9])?$)/.test(input);
 }
 
+export const isPositiveInteger = (input : string) : boolean => {
+  return /^0*[1-9]+\d*$/.test(input);
+}
+
+export const isPositiveDecimalLessThanOne = (input : string) : boolean => {
+  return /^0?\.\d{0,2}$/.test(input);
+}

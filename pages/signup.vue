@@ -86,6 +86,17 @@ async function signUp() {
             type="submit"
             size="x-large"
           >Sign Up</v-btn>
+          <v-btn
+            block
+            class="text-primary sans-serif font-weight-bold mt-2"
+            color="primary"
+            variant="tonal"
+            rounded="0"
+            type="submit"
+            size="x-large"
+            append-icon="fab fa-github"
+            @click="() => signIn('github', { callbackUrl: '/' })"
+          >Sign Up With Github</v-btn>
         </v-form>
       </v-col>
       <v-col></v-col>

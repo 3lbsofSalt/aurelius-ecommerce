@@ -52,7 +52,6 @@ async function handleLogin() {
           color="primary"
           variant="tonal"
           rounded="0"
-          type="submit"
           size="x-large"
           append-icon="fab fa-github"
           @click="() => signIn('github', { callbackUrl: '/' })"

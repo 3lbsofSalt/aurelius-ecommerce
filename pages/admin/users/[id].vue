@@ -17,7 +17,12 @@ if(error.value || !routePrivs.value.includes('Users')) {
 const route = useRoute();
 
 const editing = ref(false);
-const { data: user, error: getUserError, refresh: refetchUser } = await useFetch<UserI>('/api/admin/users/' + route.params.id)
+const { data: user, error: getUserError, refresh: refetchUser } = await useFetch<UserI>('/api/admin/users/' + route.params.id);
+
+async function reloadUser() {
+  await refetchUser();
+  editableUser.value = {...user.value};
+}
 
 if(getUserError) {
   errorStore.error = 'There was an error getting the user.';
@@ -39,9 +44,7 @@ async function saveOrEdit() {
         permissionGroup: editableUser.value.permissionGroup
       }
     })
-      .then(() => {
-        refetchUser();
-      })
+      .then(() => { reloadUser(); })
       .catch(() => { errorStore.error = 'There was an error updating the user' })
   }
 
@@ -60,8 +63,24 @@ const permissionGroupRules = [
     title="User Info"
     class="sans-serif"
   >
+    <template v-slot:prepend>
+      <v-btn 
+        icon="fas fa-arrow-left"
+        to="/admin/users"
+      ></v-btn>
+    </template>
     <template v-slot:append>
-      <v-btn @click="saveOrEdit">{{editing ? 'Save' : 'Edit'}}</v-btn>
+      <v-btn 
+        prepend-icon="fas fa-ban" 
+        color="admin"
+        class="mr-3"
+        v-if="editing"
+        @click="() => { reloadUser(); editing = false; }"
+      >Cancel</v-btn>
+      <v-btn 
+        color="admin"
+        @click="saveOrEdit"
+      >{{editing ? 'Save' : 'Edit'}}</v-btn>
     </template>
     <v-card-text>
       <div></div>

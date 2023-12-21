@@ -7,7 +7,13 @@ export default defineNuxtConfig({
     GITHUB_CLIENT_ID: 'dummy',
     GITHUB_CLIENT_SECRET: 'dummy',
     MONGODB_URL: 'dummy',
-    MONGODB_NAME: 'dummy'
+    MONGODB_NAME: 'dummy',
+    public: {
+      DIGITAL_OCEAN_SPACES_ENDPOINT: 'https://sfo3.digitaloceanspaces.com',
+      DIGITAL_OCEAN_SPACES_RETRIEVAL_ENDPOINT: 'https://3lbsofsaltdevelopment.sfo3.digitaloceanspaces.com/',
+      DIGITAL_OCEAN_SPACES_BUCKET: '3lbsofsaltdevelopment',
+      DIGITAL_OCEAN_SPACES_FILE_PREFIX: 'aurelius_dev/'
+    }
   },
 
   css: [

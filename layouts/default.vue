@@ -92,18 +92,18 @@ async function handleSignOut() {
               <v-list v-if="!authStore.isLoggedIn">
                 <v-list-item
                   class="sans-serif text-primary"
-                  href="/login"
+                  to="/login"
                 >Sign In</v-list-item>
                 <v-list-item
                   class="sans-serif text-primary"
-                  href="/signup"
+                  to="/signup"
                 >Sign Up</v-list-item>
               </v-list>
               <v-list v-else>
                 <v-list-item
                   v-if="authStore.isAdmin"
                   class="sans-serif text-primary"
-                  href="/admin/privileges"
+                  to="/admin/privileges"
                 >Admin Panel</v-list-item>
                 <v-list-item
                   class="sans-serif text-primary"

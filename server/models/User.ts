@@ -38,7 +38,6 @@ export interface UserI {
 const User = new Schema<UserI>({
   _id: {
     type: Number,
-    required: true,
     unique: true
   },
   email: { 
@@ -86,7 +85,7 @@ const User = new Schema<UserI>({
 
 User.methods = {
   refreshCart: async function() {
-    const [error, result] = await safeAwait(this.cart.refreshCart());
+    const [error] = await safeAwait(this.cart.refreshCart());
 
     if(error) {
       // @ts-ignore
@@ -99,14 +98,18 @@ User.methods = {
   }
 }
 
-User.pre('save', function(next) {
+User.pre('save', async function(next) {
   const doc = this;
   if(!doc.isNew) next();
-  counter.findByIdAndUpdate({_id: 'user_id'}, {$inc: {seq: 1}, upsert: true}, function(error : any, nextId: counterI) {
-    if(error) throw error;
+  const [error, nextId] = await safeAwait(counter.findByIdAndUpdate({_id: 'user_id'}, {$inc: {seq: 1}, new: true, upsert: true}));
+  if(error) throw error;
+  if(nextId == null) {
+    const seq = await counter.create({_id: 'user_id', seq: 1});
+    doc._id = seq.seq;
+  } else {
     doc._id = nextId.seq;
-    next();
-  });
+  }
+  next();
 });
 
 export default model<UserI>('User', User);

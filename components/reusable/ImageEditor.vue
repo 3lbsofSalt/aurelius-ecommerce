@@ -7,7 +7,7 @@ const emit = defineEmits<{
   (e: 'removeImage', index: number): void
 }>();
 
-defineProps([ 'editing', 'images', 'removeImage' ]);
+defineProps([ 'editing', 'images' ]);
 </script>
 
 <template>
@@ -28,12 +28,10 @@ defineProps([ 'editing', 'images', 'removeImage' ]);
     </v-carousel>
     <p v-else>No Images To Display</p>
 
-
-
     <v-list>
       <v-list-item
         v-for="(image, i) in images"
-        :key="image.name"
+        :key="i"
       >
         <template v-slot:prepend>
           <v-avatar rounded="0">
@@ -47,20 +45,20 @@ defineProps([ 'editing', 'images', 'removeImage' ]);
           class="d-flex pt-4"
         >
           <v-text-field
-            :value="images[i].name"
+            :model-value="images[i].name"
             @update:model-value="(val) => { $emit('changeImageName', val, i); }"
             label="File Name"
             class="px-2"
-            :disabled="!editing"
+            :readonly="!editing"
             variant="outlined"
             :active="images[i].name !== ''"
           />
           <v-text-field
-            :value="images[i].altText"
+            :model-value="images[i].altText"
             @update:model-value="(val) => { $emit('changeImageAlt', val, i); }"
             label="Alt Text"
             class="px-2"
-            :disabled="!editing"
+            :readonly="!editing"
             variant="outlined"
             :active="images[i].name !== ''"
           />
@@ -96,10 +94,6 @@ defineProps([ 'editing', 'images', 'removeImage' ]);
       multiple
       v-if="editing"
     />
-    <v-btn
-      block
-      color="primary"
-    >Submit</v-btn>
   </div>
 </template>
 

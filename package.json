@@ -18,11 +18,14 @@
     "vue-router": "^4.2.5"
   },
   "dependencies": {
+    "@aws-sdk/client-s3": "^3.474.0",
     "@fortawesome/fontawesome-free": "^6.4.2",
     "@pinia/nuxt": "^0.5.1",
     "bcryptjs": "^2.4.3",
+    "formidable": "^3.5.1",
     "mongoose": "^8.0.1",
     "mongoose-sequence": "^5.3.1",
+    "multer": "^1.4.5-lts.1",
     "next-auth": "4.22.5",
     "nuxt-mongoose": "^1.0.3",
     "pinia": "^2.1.7",

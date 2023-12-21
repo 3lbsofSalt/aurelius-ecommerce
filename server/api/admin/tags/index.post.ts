@@ -1,5 +1,5 @@
 import safeAwait from 'safe-await';
-import Tags from '../../../models/Tag';
+import Tags from '~/server/models/Tag';
 import { isAlphanumeric } from '~/utils/validationFunctions';
 import { useLogger } from '@nuxt/kit';
 

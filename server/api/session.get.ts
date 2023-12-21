@@ -18,6 +18,23 @@ export default eventHandler(async (event) => {
   const [error, user] = await safeAwait(User.findOne({ email: session.user.email }, '-hash -activationToken -resetToken'));
   if(error) {
     logger.error(error);
+    throw createError({
+      statusCode: 500,
+      statusMessage: 'Server Error Getting User'
+    });
+  }
+
+  if(!user) {
+    console.log(session);
+    const [userCreateError] = await safeAwait(User.create({ email: session.user.email }));
+
+    if(userCreateError) {
+      logger.error(userCreateError);
+      logger.error({
+        statusCode: 500,
+        statusMessage: 'Server Error Creating User'
+      });
+    }
   }
 
   return user;

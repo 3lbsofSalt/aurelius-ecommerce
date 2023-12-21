@@ -1,6 +1,7 @@
 import { Schema, model } from 'mongoose';
 
 export interface NavigationCategoryI {
+  _id: string,
   main: {
     _id: string,
     name: string

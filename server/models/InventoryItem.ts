@@ -34,7 +34,7 @@ export interface InventoryItemI {
   dateAdded?: Date,
   dateModified?: Date,
   timesSold?: number,
-  images?: InventoryImageI[],
+  images: InventoryImageI[],
   baseImagePath?: string,
   customerInputFields?: CustomInputFieldsI[],
   weight?: WeightI,
@@ -136,7 +136,6 @@ InventoryItem.pre('save', async function(next) {
   const doc = this;
   if(!doc.isNew) next();
   const [error, nextId] = await safeAwait(counter.findByIdAndUpdate({_id: 'inventory_item_id'}, {$inc: {seq: 1}, new: true, upsert: true}));
-  console.log(nextId);
   if(error) throw error;
   if(nextId == null) {
     const seq = await counter.create({_id: 'inventory_item_id', seq: 0});

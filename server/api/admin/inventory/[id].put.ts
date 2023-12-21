@@ -87,6 +87,7 @@ export default defineEventHandler(async (event) => {
 
   const imagesUploading = [];
   const imageMetaData = [];
+  // Uploading images
   for(const image in files.images) {
     imageMetaData.push({
       name: imagesData[image].name,
@@ -99,10 +100,19 @@ export default defineEventHandler(async (event) => {
     );
   }
 
+  // Removing images
   for(const image of (item.images || [])) {
     if(imagesToRemove.includes(image._id)) {
       deleteImage(baseImageUrl(inventoryImageLocationPrefix, image));
     }
+  }
+
+  // Renaming existing images
+  for(const image in files.images) {
+    if(files.images[image].size > 0) continue;
+    const og = item.images?.find(oldImage => oldImage._id?.toString() == imagesData[image]._id);
+    if(!og || og.name === imagesData[image].name) continue;
+    imagesUploading.push(moveImage(item.baseImagePath + og.name, item.baseImagePath + imagesData[image].name));
   }
 
   const [uploadError] = await safeAwait(Promise.all(imagesUploading));

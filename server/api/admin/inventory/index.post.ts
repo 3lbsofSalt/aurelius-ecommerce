@@ -61,7 +61,6 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  console.log(inputFields);
   if(inputFields.some((input:any) => !validInputTypes.includes(input.type) || !isWideRangeAlphanumeric(input.description) || !isWideRangeAlphanumeric(input.name))) {
     throw createError({
       statusCode: 422,

@@ -4,7 +4,7 @@ import { useLogger } from "@nuxt/kit";
 
 export default defineEventHandler(async (event) => {
   const logger = useLogger();
-  const [error, navCats] = await safeAwait(ProductNavigation.find({ active: true }));
+  const [error, navCats] = await safeAwait(ProductNavigation.find());
 
   if(error) {
     logger.error("There was an error retrieving the inventory items.");

@@ -49,6 +49,5 @@ export default eventHandler(async (event) => {
     }
   }
 
-  logger.log(allowedRoutes);
   return allowedRoutes;
 });

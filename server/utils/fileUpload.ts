@@ -37,6 +37,7 @@ export const uploadImage = (imageLocation : string, imageContents : Buffer) => {
       Body: imageContents
     };
 
+    // @ts-ignore I don't know the types and this always works, so I'm fine with it
     const [ error ] = await safeAwait(s3Client.send(new PutObjectCommand(imageData)));
 
     console.log('Upload Complete.');
@@ -66,3 +67,29 @@ export const deleteImage = (imageLocation: string) => {
     return resolve(true);
   });
 };
+
+export const moveImage = (imageLocation : string, newImageLocation : string) => {
+  return new Promise(async (resolve, reject) => {
+    const params = {
+      ...defaultBucketSettings,
+      Key: process.env.DIGITAL_OCEAN_SPACES_FILE_PREFIX + newImageLocation,
+      CopySource: `/${process.env.DIGITAL_OCEAN_SPACES_BUCKET}/${process.env.DIGITAL_OCEAN_SPACES_FILE_PREFIX}${imageLocation}`
+    };
+
+    // @ts-ignore I don't know the types and this always works, so I'm fine with it
+    const [ error ] = await safeAwait(s3Client.send(new CopyObjectCommand(params)));
+
+    if(error) {
+      console.log(error);
+      return reject(error);
+    }
+
+    const [deleteError] = await safeAwait(deleteImage(imageLocation));
+    if(deleteError) {
+      console.log(deleteError);
+      return reject(deleteError);
+    }
+
+    return resolve(true);
+  });
+}

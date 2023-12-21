@@ -31,8 +31,6 @@ export const useAuthStore = defineStore('auth', {
     async checkForSession() {
       const { data: user, error } = await useFetch('/api/session');
 
-      console.log(user.value);
-
       if(error.value) {
         console.log(error.value);
         return this.$reset();

@@ -19,8 +19,6 @@ const { data: payOnPickupAllowed } = await useFetch<SettingI>('/api/admin/settin
 const { data: payOnPickupThreshold } = await useFetch<SettingI>('/api/admin/settings/orders/checkout/payOnPickupThreshold');
 const { data: salesTax } = await useFetch<SettingI>('/api/admin/settings/orders/taxes/salesTax');
 
-console.log(salesTax.value);
-
 function changeAllowPayOnPickup() { $fetch('/api/admin/settings/orders/checkout/allowPayOnPickup', { 
   method: 'put', 
   body: { value: !payOnPickupAllowed.value?.value } 

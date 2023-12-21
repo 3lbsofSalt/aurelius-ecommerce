@@ -1,5 +1,5 @@
 import safeAwait from "safe-await";
-import InventoryItem from '../../../models/InventoryItem';
+import InventoryItem from '~/server/models/InventoryItem';
 import { useLogger } from '@nuxt/kit';
 
 export default defineEventHandler(async (event) => {

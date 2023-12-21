@@ -5,6 +5,5 @@ export const baseImageUrl = (baseImagePath: string, image: InventoryImageI) => {
     config.public.DIGITAL_OCEAN_SPACES_FILE_PREFIX +
     baseImagePath +
     image?.name; 
-  console.log(src);
   return src;
 }

@@ -17,7 +17,6 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const { value } = body;
 
-  console.log(value);
   const [error, tags] = await safeAwait(Setting.updateOne({ type, subtype, name }, { value }, { upsert: true }));
 
   if(error) {

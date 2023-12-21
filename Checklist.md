@@ -6,7 +6,7 @@
 - [x] Inventory
 - [x] User management
 - [x] Privilege Groups
-- [ ] Navigation
+- [x] Navigation
 - [x] Settings
 ### Cart and Checkout Finished - Dec 28th
 - [ ] Products show up

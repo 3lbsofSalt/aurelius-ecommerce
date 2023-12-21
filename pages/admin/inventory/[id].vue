@@ -56,7 +56,7 @@ const editableImages = ref<(InventoryImageI & { location: string, data?: File})[
 const deletedImages = ref<string[]>([]);
 
 async function saveOrEdit() {
-  if(editing) {
+  if(editing.value) {
     const formData = new FormData();
     formData.append('name', editableItem.value.name || '');
     formData.append('description', editableItem.value.description || '');
@@ -69,7 +69,7 @@ async function saveOrEdit() {
     for(const image of editableImages.value) {
       // An image with data and without an _id, is a new image that needs to be uploaded
       formData.append('images', image?.data || new Blob([]), image.name);
-      formData.append('imagesData', JSON.stringify({ name: image.name, altText: image.altText }));
+      formData.append('imagesData', JSON.stringify({ _id: image._id, name: image.name, altText: image.altText }));
     }
     $fetch('/api/admin/inventory/' + item.value?._id, {
       method: 'put',

@@ -25,7 +25,6 @@ export default eventHandler(async (event) => {
   }
 
   if(!user) {
-    console.log(session);
     const [userCreateError] = await safeAwait(User.create({ email: session.user.email }));
 
     if(userCreateError) {

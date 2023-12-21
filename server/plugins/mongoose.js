@@ -2,11 +2,6 @@ import mongoose from 'mongoose';
 import User from '../models/User.ts';
 
 export default defineNitroPlugin(async () => {
-
-  console.log('I run');
-
-  console.log(process.env.MONGODB_URL);
-  console.log(process.env.MONGODB_NAME);
   mongoose.connect(`${process.env.MONGODB_URL}/${process.env.MONGODB_NAME}`, {
     /*
     useNewUrlParser: true,

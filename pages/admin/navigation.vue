@@ -80,6 +80,11 @@ function deleteProductMainCategory(id : string) {
         :key="cat._id"
         :title="cat.main.name"
       >
+        <v-combobox 
+          label="Subcategories"
+          variant="outlined" 
+          class="ma-2"
+        ></v-combobox>
         <template v-slot:append>
           <v-btn 
             class="text-error" 

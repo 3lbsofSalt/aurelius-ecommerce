@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
 import type { TagI } from './Tag';
 import safeAwait from 'safe-await';
-import counter, { type counterI } from './idCounter';
+import counter from './idCounter';
 
 export const validWeightUnits = ['pounds', 'ounces', 'grams'];
 
@@ -138,7 +138,7 @@ InventoryItem.pre('save', async function(next) {
   const [error, nextId] = await safeAwait(counter.findByIdAndUpdate({_id: 'inventory_item_id'}, {$inc: {seq: 1}, new: true, upsert: true}));
   if(error) throw error;
   if(nextId == null) {
-    const seq = await counter.create({_id: 'inventory_item_id', seq: 0});
+    const seq = await counter.create({_id: 'inventory_item_id', seq: 1});
     doc._id = seq.seq;
   } else {
     doc._id = nextId.seq;

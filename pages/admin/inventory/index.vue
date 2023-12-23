@@ -154,6 +154,7 @@ function goToItem(_:any, row : any) {
   />
   <v-btn
     icon="fas fa-plus"
+    color="admin"
     position="absolute"
     style="right: 3vh; bottom: 3vh"
     @click="startCreatingItem"

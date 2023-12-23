@@ -1,5 +1,9 @@
 <script setup lang="ts">
+import type { InventoryItemI } from '~/server/models/InventoryItem';
+import type { NavigationCategoryI } from '~/server/models/ProductNavigation';
 
+const { data: items } = await useFetch<InventoryItemI[]>('/api/inventory');
+const { data: productNavigationCategories } = await useFetch<NavigationCategoryI[]>('/api/navigation/products');
 </script>
 
 <template>
@@ -126,8 +130,108 @@
           ></v-divider>
         </v-col>
       </v-row>
-      <v-row>
+      <v-row
+        class="mt-8"
+      >
+        <v-col
+          class="d-flex justify-center"
+        >
+          <div class="text-primary text-h4">
+            BROWSE ALL PRODUCTS
+          </div>
+        </v-col>
       </v-row>
+      <v-row
+        class="mb-16"
+      >
+        <v-col
+          class="d-flex justify-center"
+        >
+          <v-icon 
+            color="primary"
+            icon="fas fa-down-long"
+          ></v-icon>
+        </v-col>
+      </v-row>
+      <v-container
+        fluid
+        style="width: 83%"
+      >
+        <v-row>
+          <v-col>
+            <div
+              class="text-h4 text-primary"
+            >
+              Products & Services
+            </div>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-divider
+              class="border-opacity-100"
+              style="width: 48%;"
+            ></v-divider>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col
+            cols="3"
+          >
+            <v-list
+              class="text-primary sans-serif mt-2"
+            >
+              <v-list-item
+                to="/products"
+              >ALL</v-list-item>
+              <v-list-item
+                v-for="cat in productNavigationCategories"
+                :to="'/products?initCat=' + cat.main.name"
+              >{{ cat.main.name.toUpperCase() }}</v-list-item>
+            </v-list>
+          </v-col>
+          <v-col
+            cols="9"
+          >
+            <v-container
+              fluid
+            >
+              <v-row>
+                <v-col
+                  v-for="item in items"
+                  cols="4"
+                  class="pa-8"
+                >
+                  <v-card
+                    class="sans-serif"
+                    flat
+                    rounded="0"
+                    color="primary"
+                    style="aspect-ratio: 1;"
+                    :image="baseImageUrl(item.baseImagePath || '', item?.images[0] || '')"
+                  >
+                    <v-btn
+                      style="position: absolute; bottom: 6%; right: 6%;"
+                      rounded="0"
+                      class="font-weight-bold text-white bg-primary"
+                    >ORDER</v-btn>
+                  </v-card>
+                  <div
+                    class="text-h6 sans-serif mt-5 font-weight-bold text-primary"
+                  >{{ item.name }}</div>
+                  <div
+                    class="text-h6 sans-serif font-weight-light text-primary"
+                  >{{ '$' + item.price.toFixed(2) }}</div>
+                  <v-divider 
+                    color="primary"
+                    class="mt-4 border-opacity-100"
+                  ></v-divider>
+                </v-col>
+              </v-row>
+            </v-container>
+          </v-col>
+        </v-row>
+      </v-container>
     </v-container>
   </div>
 </template>

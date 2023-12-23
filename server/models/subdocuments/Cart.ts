@@ -1,40 +1,46 @@
 import { Schema, model } from 'mongoose';
-import { InventoryItem } from '../InventoryItem';
+import { InventoryItem, type InventoryItemI } from '../InventoryItem';
 
 import safeAwait from 'safe-await';
+
+export interface CartI {
+  items: {
+    item: InventoryItemI, // What is the item
+    quantity: number, // How many of that item do you have
+    // An array of arrays of answers to fields. The inner array position corresponds to it's position in the item itself
+    fieldAnswers: {
+      answer: [string | undefined],
+      quantity: number // This quantity represents how many of this set of fields is wanted
+    }[]
+
+  }[],
+  cartQuantity: number,
+  total: number
+}
 
 const Cart = new Schema({
   items: [{
     item: InventoryItem,
+    quantity: Number,
+    fieldAnswers: [{
+      answer: [{ type: String }],
+      quantity: {
+        type: Number,
+        default: 0,
+        required: true
+      }
+    }],
     // Fields are a 2-dimensional array as each item in the cart can have more than one field to fill out
     // and can have sets of fields with different values.
     // The first array contains sets of unique fields, the inner array contains individual fields
-    fields: [{
-      fieldSet: [{
-        _id: Schema.Types.ObjectId,
-        description: String,
-        name: String,
-        required: Boolean,
-        type: {
-          type: String,
-          enum: ['download', 'text']
-        },
-        value: String,
-        default: []
-      }],
-      quantity: {
-        type: Number,
-        default: 0
-      },
-    }],
-    quantity: Number
   }],
-  quantity: Number,
+  cartQuantity: Number,
   total: {
     type: Number
   }
 });
 
+/*
 Cart.statics = {
   // Try to use this only if refreshCart has already been called on the cart object in the function
   getTotalWeight: function(cart) {
@@ -133,7 +139,13 @@ Cart.methods = {
   }
 
 };
+*/
 
+export const emptyCart: CartI = {
+  items: [],
+  cartQuantity: 0,
+  total: 0
+}
 
 export default Cart;
 

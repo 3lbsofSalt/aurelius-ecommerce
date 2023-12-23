@@ -29,7 +29,7 @@ function goToUser(_: any, row: any) { navigateTo('/admin/users/' + row.item._id)
 <template>
   <v-card>
     <v-data-table
-      :headers="headers"
+      :headers="headers as any"
       :items="users || []"
       class="sans-serif"
       @click:row="goToUser"

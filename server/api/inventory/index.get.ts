@@ -4,6 +4,9 @@ import { useLogger } from "@nuxt/kit";
 
 export default defineEventHandler(async (event) => {
   const logger = useLogger();
+
+  const query = getQuery(event);
+
   const [error, inventoryItems] = await safeAwait(InventoryItem.find());
 
   if(error) {

@@ -23,6 +23,12 @@ onMounted(async () => {
           prepend-icon="fas fa-house"
         >Go Home</v-list-item>
         <v-list-item
+          to="/admin/orders"
+          class="sans-serif"
+          prepend-icon="fas fa-file-invoice-dollar"
+          title="Orders"
+        ></v-list-item>
+        <v-list-item
           to="/admin/inventory"
           class="sans-serif"
           prepend-icon="fas fa-boxes"

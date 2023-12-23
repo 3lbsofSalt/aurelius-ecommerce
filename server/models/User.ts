@@ -1,7 +1,7 @@
 import { Schema, model } from 'mongoose';
-import Cart from './subdocuments/Cart.js';
+import Cart from './subdocuments/Cart';
 import safeAwait from 'safe-await';
-import counter, { type counterI } from './idCounter';
+import counter from './idCounter';
 
 // Auto Increment Functionality
  /*

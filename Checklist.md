@@ -2,7 +2,8 @@
 
 ## Goals!
 ### Admin Panel Migrated - Dec 23rd
-- [ ] Orders
+- [x] Orders
+    - [ ] Basically done, but I need to get cart and checkout finished before I can finish this.
 - [x] Inventory
 - [x] User management
 - [x] Privilege Groups

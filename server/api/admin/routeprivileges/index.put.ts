@@ -1,6 +1,6 @@
 import safeAwait from "safe-await";
-import RoutePrivileges from '../../../models/RoutePrivileges';
-import { useLogger } from '@nuxt/kit';
+import RoutePrivileges from "~/server/models/RoutePrivileges";
+import { useLogger } from "@nuxt/kit";
 import { hasRouteAccess } from "~/server/utils/auth";
 import { isAlphanumeric } from "~/utils/validationFunctions";
 import Privileges from "~/server/models/Privileges";

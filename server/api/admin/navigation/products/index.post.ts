@@ -15,10 +15,7 @@ export default defineEventHandler(async (event) => {
   const { tag } = body;
 
   const [error] = await safeAwait(ProductNavigation.create({ 
-    main: { 
-      _id: tag._id,
-      name: tag.name
-    } 
+    main: tag._id
   }));
 
   if(error) {

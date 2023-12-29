@@ -7,7 +7,7 @@ import formidable from 'formidable';
 import { randomUUID } from 'crypto';
 import { readFileSync } from 'node:fs';
 import type { TagI } from "~/server/models/Tag";
-import { validInputTypes, validWeightUnits, type InventoryItemI } from '~/server/models/InventoryItem';
+import { validInputTypes, validWeightUnits } from '~/server/models/InventoryItem';
 import { baseImageUrl } from '~/utils/imageRetrieval';
 import { deleteImage } from '~/server/utils/fileUpload';
 

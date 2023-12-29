@@ -125,6 +125,7 @@ function createItem() {
                 v-model="description"
                 label="Description"
                 variant="outlined"
+                multiline
                 :rules="wideRangeAlphaNumericRules"
               ></v-text-field>
             </v-col>

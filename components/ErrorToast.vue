@@ -1,11 +1,6 @@
 <script setup lang="ts">
-import { useErrorStore } from '~/stores/error';
-defineProps(['visible', 'message']);
 const errorStore = useErrorStore();
 const { isError } = storeToRefs(errorStore);
-
-const isValidationError = ref(false);
-const errorText = ref('');
 
 function close() {
   errorStore.unset();
@@ -15,40 +10,22 @@ function close() {
 
 <template>
   <v-snackbar
+    v-model="isError"
     inset
-    :veritcal="isValidationError"
+    class="sans-serif"
   >
     <v-icon
       color="error"
-      icon="fa-triangle-exclamation"
+      icon="fas fa-triangle-exclamation"
+      class="mr-4"
     >
     </v-icon>
-    <template
-      v-if="isValidationError"
-    >
-      Some of the data sent to the server was incorrect:
-      <v-list
-        dense
-      >
-        <v-list-item
-          v-for="(error, index) in errorText"
-          :key="index"
-        >
-          {{ error }}
-        </v-list-item>
-      </v-list>
-    </template>
-    <template
-      v-else
-    >
-      {{  message }}
-    </template>
-    <template v-slot:action="{ attrs }">
+    {{ errorStore.error }}
+    <template v-slot:actions>
       <v-btn
         color="red"
         @click="close"
-        text
-        v-bind="attrs"
+        class="sans-serif"
       >
         Close
       </v-btn>

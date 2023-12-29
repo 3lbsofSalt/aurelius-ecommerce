@@ -31,6 +31,7 @@
     "pinia": "^2.1.7",
     "safe-await": "^2.0.0",
     "sass": "^1.69.5",
+    "stripe": "^14.10.0",
     "vuetify-nuxt-module": "^0.6.7"
   }
 }

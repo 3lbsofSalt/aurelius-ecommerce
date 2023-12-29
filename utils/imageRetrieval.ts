@@ -7,3 +7,11 @@ export const baseImageUrl = (baseImagePath: string, image: InventoryImageI) => {
     image?.name; 
   return src;
 }
+
+export const fromFullImagePath = (imagePath: string) => {
+  const config = useRuntimeConfig();
+  const src = config.public.DIGITAL_OCEAN_SPACES_RETRIEVAL_ENDPOINT + 
+    config.public.DIGITAL_OCEAN_SPACES_FILE_PREFIX +
+    imagePath;
+  return src;
+}

@@ -3,10 +3,11 @@ import { Schema, model } from 'mongoose';
 export interface TagI {
   _id: string,
   name: string,
-  active: boolean
+  active: boolean,
+  imageLocation?: string
 }
 
-const Tag = new Schema<TagI>({
+export const Tag = new Schema<TagI>({
   name: {
     type: String,
     required: true,
@@ -16,7 +17,8 @@ const Tag = new Schema<TagI>({
     type: Boolean,
     default: true,
     required: true
-  }
+  },
+  imageLocation: String
 });
 
 export default model<TagI>('Tag', Tag);

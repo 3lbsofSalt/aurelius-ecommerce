@@ -1,6 +1,9 @@
 <script setup lang="ts">
 const authStore = useAuthStore();
-authStore.checkForSession();
+await authStore.checkForSession();
+
+const cartStore = useCartStore();
+await cartStore.initializeCart();
 </script>
 
 <template>

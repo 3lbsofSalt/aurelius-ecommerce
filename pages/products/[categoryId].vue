@@ -1,13 +1,17 @@
 <script setup lang="ts">
+
 import InventoryItemCard from '~/components/reusable/InventoryItemCard.vue';
 
 import type { InventoryItemI } from '~/server/models/InventoryItem';
 import type { NavigationCategoryI } from '~/server/models/ProductNavigation';
 
-const router = useRoute();
-const category = ref(router.query.initCat || '');
-const { data: navCat } = await useFetch<NavigationCategoryI[]>('/api/navigation/products');
-const { data: items } = await useFetch<InventoryItemI[]>('/api/inventory', { });
+const route = useRoute();
+const { data: navCat } = await useFetch<NavigationCategoryI>('/api/navigation/products/' + route.params.categoryId);
+const { data: items } = await useFetch<InventoryItemI[]>('/api/inventory', {
+  query: { categoryId: navCat.value?.main._id }
+});
+
+console.log(items.value);
 
 </script>
 
@@ -27,7 +31,7 @@ const { data: items } = await useFetch<InventoryItemI[]>('/api/inventory', { });
       <v-col
         class="text-h3 text-primary"
       >
-        All Products
+        {{ navCat?.main.name }}
       </v-col>
     </v-row>
     <v-row
@@ -36,7 +40,7 @@ const { data: items } = await useFetch<InventoryItemI[]>('/api/inventory', { });
       <v-col 
         cols="3"
         class="text-h5 weight-bold text-primary"
-      >Select a Product Type</v-col>
+      >{{(navCat?.subcategories?.length || 0) > 0 ? 'Select a Product Type' : ''}}</v-col>
       <v-col cols="3"></v-col>
       <v-col 
         cols="3"
@@ -48,10 +52,10 @@ const { data: items } = await useFetch<InventoryItemI[]>('/api/inventory', { });
           class="sans-serif"
           style="text-wrap: wrap;"
           append-icon="fas fa-arrow-right"
-          to="/"
+          to="/products"
         >
           BACK TO 
-          HOME PAGE
+          ALL PRODUCTS
         </v-btn>
       </v-col>
     </v-row>
@@ -63,14 +67,13 @@ const { data: items } = await useFetch<InventoryItemI[]>('/api/inventory', { });
       >
         <v-slide-group>
           <v-slide-group-item
-            v-for="sub in navCat"
+            v-for="sub in navCat?.subcategories"
             class="mx-2"
           >
             <v-card
               class="pa-4"
-              width="270"
+              width="230"
               :to="'/products/' + sub._id"
-              elevation="0"
             >
               <v-responsive
                 :aspect-ratio="1/1"
@@ -80,7 +83,7 @@ const { data: items } = await useFetch<InventoryItemI[]>('/api/inventory', { });
                   flat
                   rounded="0"
                   color="primary"
-                  :image="fromFullImagePath(sub.main.imageLocation || '')"
+                  :image="fromFullImagePath(sub.imageLocation || '')"
                 >
                   <v-btn
                     style="position: absolute; bottom: 6%; right: 6%;"
@@ -91,8 +94,7 @@ const { data: items } = await useFetch<InventoryItemI[]>('/api/inventory', { });
               </v-responsive>
               <div
                 class="text-h6 sans-serif mt-5 font-weight-bold text-primary"
-                :to="'/products/' + sub._id"
-              >{{ sub.main.name }}</div>
+              >{{ sub.name }}</div>
               <v-divider 
                 color="primary"
                 class="mt-4 border-opacity-100"
@@ -108,7 +110,7 @@ const { data: items } = await useFetch<InventoryItemI[]>('/api/inventory', { });
       <v-col 
         cols="3"
         class="text-h5 weight-bold text-primary"
-      >Browse Products</v-col>
+      >{{(items?.length || 0) > 0 ? 'Browse Products' : 'No Products in this category'}}</v-col>
       <v-col cols="3"></v-col>
       <v-col cols="3"></v-col>
     </v-row>
@@ -125,7 +127,6 @@ const { data: items } = await useFetch<InventoryItemI[]>('/api/inventory', { });
             <v-col
               v-for="item in items"
               cols="4"
-              :to="'/item/' + item._id"
             >
               <InventoryItemCard 
                 :item="item"

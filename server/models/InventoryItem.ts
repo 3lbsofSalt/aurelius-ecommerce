@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import mongoose, { Schema, model } from 'mongoose';
 import type { TagI } from './Tag';
 import safeAwait from 'safe-await';
 import counter from './idCounter';
@@ -10,10 +10,10 @@ export interface WeightI {
   quantity: number
 }
 
-export const validInputTypes = ['download', 'text'];
+export const validInputTypes = ['download', 'text', 'select'];
 
 export interface CustomInputFieldsI {
-  type: 'download' | 'text',
+  type: 'download' | 'text' | 'select',
   required: boolean,
   description?: string,
   name: string
@@ -42,7 +42,7 @@ export interface InventoryItemI {
 }
 
 
-export const InventoryItem = new Schema<InventoryItemI>({
+export const InventoryItemSchema = new Schema<InventoryItemI>({
   _id: {
     type: Number,
     unique: true
@@ -125,14 +125,14 @@ export const InventoryItem = new Schema<InventoryItemI>({
   }
 });
 
-InventoryItem.methods = {
+InventoryItemSchema.methods = {
   getSafeImageUrl: function(imageIndex: number) {
     return process.env.DIGITAL_OCEAN_SPACES_BUCKET_URL_PREFIX + encodeURI(this.baseImagePath + this.images[imageIndex].name)
   }
 };
 
 
-InventoryItem.pre('save', async function(next) {
+InventoryItemSchema.pre('save', async function(next) {
   const doc = this;
   if(!doc.isNew) next();
   const [error, nextId] = await safeAwait(counter.findByIdAndUpdate({_id: 'inventory_item_id'}, {$inc: {seq: 1}, new: true, upsert: true}));
@@ -147,5 +147,9 @@ InventoryItem.pre('save', async function(next) {
 
 });
 
+let exportModel = mongoose.models?.InventoryItem;
+if(!exportModel) {
+  exportModel = model<InventoryItemI>('InventoryItem', InventoryItemSchema);
+}
 
-export default model<InventoryItemI>('InventoryItem', InventoryItem);
+export default exportModel

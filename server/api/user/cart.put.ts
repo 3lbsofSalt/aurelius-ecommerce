@@ -3,7 +3,7 @@ import User from '~/server/models/User';
 import safeAwait from 'safe-await';
 import { useLogger } from '@nuxt/kit';
 
-export default eventHandler(async (event) => {
+export default defineEventHandler(async (event) => {
   const logger = useLogger();
   const session = await getServerSession(event);
 
@@ -13,8 +13,13 @@ export default eventHandler(async (event) => {
       statusMessage: 'Unauthenticated'
     });
   }
+  const body = await readBody(event);
 
-  const [error, user] = await safeAwait(User.findOne({ email: session.user.email }, '-hash -activationToken -resetToken'));
+  const {
+    cart
+  } = body;
+
+  const [error, user] = await safeAwait(User.updateOne({ email: session.user.email }, { cart }));
   if(error) {
     logger.error(error);
     throw createError({
@@ -22,18 +27,4 @@ export default eventHandler(async (event) => {
       statusMessage: 'Server Error Getting User'
     });
   }
-
-  if(!user) {
-    const [userCreateError] = await safeAwait(User.create({ email: session.user.email }));
-
-    if(userCreateError) {
-      logger.error(userCreateError);
-      logger.error({
-        statusCode: 500,
-        statusMessage: 'Server Error Creating User'
-      });
-    }
-  }
-
-  return user;
 });

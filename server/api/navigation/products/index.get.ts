@@ -4,7 +4,12 @@ import { useLogger } from "@nuxt/kit";
 
 export default defineEventHandler(async (event) => {
   const logger = useLogger();
-  const [error, navCats] = await safeAwait(ProductNavigation.find());
+  const [error, navCats] = await safeAwait(
+    ProductNavigation.find()
+      .populate('main')
+      .populate('subcategories')
+      .exec()
+  );
 
   if(error) {
     logger.error("There was an error retrieving the inventory items.");

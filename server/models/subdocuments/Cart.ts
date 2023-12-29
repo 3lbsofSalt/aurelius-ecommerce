@@ -1,35 +1,27 @@
-import { Schema, model } from 'mongoose';
-import { InventoryItem, type InventoryItemI } from '../InventoryItem';
+import mongoose, { Schema, model } from 'mongoose';
+import { InventoryItemSchema, type InventoryItemI } from '~/server/models/InventoryItem';
 
 import safeAwait from 'safe-await';
 
-export interface CartI {
-  items: {
-    item: InventoryItemI, // What is the item
-    quantity: number, // How many of that item do you have
-    // An array of arrays of answers to fields. The inner array position corresponds to it's position in the item itself
-    fieldAnswers: {
-      answer: [string | undefined],
-      quantity: number // This quantity represents how many of this set of fields is wanted
-    }[]
 
-  }[],
+export interface CartItemI {
+  item: InventoryItemI, // What is the item
+  quantity: number, // How many of that item do you have
+  // An array of arrays of answers to fields. The inner array position corresponds to it's position in the item itself
+  fieldAnswers: (string | undefined)[]
+}
+
+export interface CartI {
+  items: CartItemI[],
   cartQuantity: number,
   total: number
 }
 
 const Cart = new Schema({
   items: [{
-    item: InventoryItem,
+    item: InventoryItemSchema,
     quantity: Number,
-    fieldAnswers: [{
-      answer: [{ type: String }],
-      quantity: {
-        type: Number,
-        default: 0,
-        required: true
-      }
-    }],
+    fieldAnswers: [{ type: String }],
     // Fields are a 2-dimensional array as each item in the cart can have more than one field to fill out
     // and can have sets of fields with different values.
     // The first array contains sets of unique fields, the inner array contains individual fields
@@ -149,4 +141,6 @@ export const emptyCart: CartI = {
 
 export default Cart;
 
-model('Cart', Cart);
+if(!mongoose.models?.Cart) {
+  model('Cart', Cart);
+}

@@ -29,7 +29,7 @@ export const useErrorStore = defineStore('error', {
     },
 
     unset() {
-      this.$reset;
+      this.$reset();
     }
   }
 

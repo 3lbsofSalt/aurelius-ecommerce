@@ -2,8 +2,7 @@
 
 const { signOut } = useAuth();
 const authStore = useAuthStore();
-
-import { useErrorStore } from '~/stores/error'; const errorStore = useErrorStore();
+const errorStore = useErrorStore();
 const { isError } = storeToRefs(errorStore);
 
 const drawer = ref(false);
@@ -119,10 +118,13 @@ async function handleSignOut() {
             class="text-primary bg-primary border-opacity-100"
             color="primary"
           ></v-divider>
-          <v-icon
-            class="mx-3 text-primary"
+          <v-btn
+            class="pa-0 text-primary"
+            color="primary"
+            rounded="0"
             icon="fas fa-shopping-cart"
-          ></v-icon>
+            to="/cart"
+          ></v-btn>
           <v-divider
             vertical
             class="text-primary bg-primary border-opacity-100"

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { InventoryItemI } from '~/server/models/InventoryItem';
 import type { TagI } from '~/server/models/Tag';
-import { baseImageUrl } from '~/utils/imageRetrieval';
+import { baseImageUrl, fromFullImagePath } from '~/utils/imageRetrieval';
 
 const errorStore = useErrorStore();
 definePageMeta({
@@ -68,6 +68,17 @@ function deleteTag(id: string) {
 function goToItem(_:any, row : any) {
   navigateTo('/admin/inventory/' + row.item._id);
 }
+
+function uploadTagImage(id : string, image: File) {
+  const formData = new FormData();
+  formData.append('images', image, image.name);
+  $fetch('/api/admin/tags/image/' + id, {
+    method: 'put',
+    body: formData
+  })
+    .then(() => { refreshTags(); });
+  
+}
 </script>
 
 <template>
@@ -115,6 +126,19 @@ function goToItem(_:any, row : any) {
         v-for="tag in tags"
         :title="tag.name"
       >
+        <v-avatar 
+          v-if="tag.imageLocation"
+          rounded="0"
+        >
+          <v-img
+            cover
+            :src="fromFullImagePath(tag.imageLocation || '')"
+          />
+        </v-avatar>
+        <v-file-input 
+          label="Upload a new file"
+          @update:model-value="(files) => { uploadTagImage(tag._id, files[0]); }"
+        />
         <template v-slot:append>
           <v-btn 
             class="text-error" 

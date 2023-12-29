@@ -1,13 +1,7 @@
 import { Schema, model } from 'mongoose';
-import Cart from './subdocuments/Cart';
+import Cart, { type CartI } from './subdocuments/Cart';
 import safeAwait from 'safe-await';
 import counter from './idCounter';
-
-// Auto Increment Functionality
- /*
-import MonSeq from 'mongoose-sequence';
-const AutoIncrement = MonSeq(mongoose);
-*/
 
 export interface UserI {
   _id: number,
@@ -19,7 +13,7 @@ export interface UserI {
   activationToken?: string,
   resetToken?: string,
   permissionGroup?: string,
-  cart?: any,
+  cart?: CartI,
   shippingAddress?: {
     fullname?: string,
     company?: string,

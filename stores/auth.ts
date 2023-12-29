@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import type { userRes } from '../utils/useFetch.d.ts';
+import { UserI } from '~/server/models/User';
 
 interface State {
   email: string,
@@ -9,10 +9,10 @@ interface State {
 }
 
 export const useAuthStore = defineStore('auth', {
-  state: (): State => ({
+  state: (): UserI => ({
     email: '',
     name: '',
-    id: '',
+    _id: -10,
     permissionGroup: 'Basic'
   }),
   getters: {
@@ -29,17 +29,16 @@ export const useAuthStore = defineStore('auth', {
   },
   actions: {
     async checkForSession() {
-      const { data: user, error } = await useFetch('/api/session');
+      const { data: user, error } = await useFetch<UserI>('/api/session');
 
       if(error.value) {
-        console.log(error.value);
         return this.$reset();
       }
 
-      this.email = user.value.email || '';
-      this.name = user.value.name || '';
-      this.id = user.value._id || '';
-      this.permissionGroup = user.value.permissionGroup || 'Basic';
+      this.email = user.value?.email || '';
+      this.name = user.value?.name || '';
+      this._id = user.value?._id || -10;
+      this.permissionGroup = user.value?.permissionGroup || 'Basic';
     }
   }
 });

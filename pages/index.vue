@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import InventoryItemCard from '~/components/reusable/InventoryItemCard.vue';
+
 import type { InventoryItemI } from '~/server/models/InventoryItem';
 import type { NavigationCategoryI } from '~/server/models/ProductNavigation';
 
@@ -68,6 +70,7 @@ const { data: productNavigationCategories } = await useFetch<NavigationCategoryI
                   variant="outlined"
                   rounded="0"
                   size="x-large"
+                  to="/products"
                 >Shop Now</v-btn>
               </v-col>
             </v-row>
@@ -108,6 +111,7 @@ const { data: productNavigationCategories } = await useFetch<NavigationCategoryI
             variant="outlined"
             rounded="0"
             size="x-large"
+            to="/signup"
           >Sign In</v-btn>
           <v-btn
             class="text-primary sans-serif font-weight-bold"
@@ -115,6 +119,7 @@ const { data: productNavigationCategories } = await useFetch<NavigationCategoryI
             variant="outlined"
             rounded="0"
             size="x-large"
+            to="/login"
           >Join</v-btn>
         </v-col>
         <v-col></v-col>
@@ -186,7 +191,7 @@ const { data: productNavigationCategories } = await useFetch<NavigationCategoryI
               >ALL</v-list-item>
               <v-list-item
                 v-for="cat in productNavigationCategories"
-                :to="'/products?initCat=' + cat.main.name"
+                :to="'/products/' + cat._id"
               >{{ cat.main.name.toUpperCase() }}</v-list-item>
             </v-list>
           </v-col>
@@ -200,32 +205,10 @@ const { data: productNavigationCategories } = await useFetch<NavigationCategoryI
                 <v-col
                   v-for="item in items"
                   cols="4"
-                  class="pa-8"
                 >
-                  <v-card
-                    class="sans-serif"
-                    flat
-                    rounded="0"
-                    color="primary"
-                    style="aspect-ratio: 1;"
-                    :image="baseImageUrl(item.baseImagePath || '', item?.images[0] || '')"
-                  >
-                    <v-btn
-                      style="position: absolute; bottom: 6%; right: 6%;"
-                      rounded="0"
-                      class="font-weight-bold text-white bg-primary"
-                    >ORDER</v-btn>
-                  </v-card>
-                  <div
-                    class="text-h6 sans-serif mt-5 font-weight-bold text-primary"
-                  >{{ item.name }}</div>
-                  <div
-                    class="text-h6 sans-serif font-weight-light text-primary"
-                  >{{ '$' + item.price.toFixed(2) }}</div>
-                  <v-divider 
-                    color="primary"
-                    class="mt-4 border-opacity-100"
-                  ></v-divider>
+                  <InventoryItemCard 
+                    :item="item"
+                  />
                 </v-col>
               </v-row>
             </v-container>

@@ -18,12 +18,11 @@ export default defineNitroPlugin(async () => {
 
   await Promise.all([
     import('../models/Setting'),
+    import('../models/InventoryItem'),
     import('../models/User'),
     import('../models/Privileges'),
     import('../models/RoutePrivileges'),
     import('../models/Tag'),
-    import('../models/InventoryItem'),
-    import('../models/Image'),
     import('../models/ProductNavigation'),
     import('../models/Order'),
     import('../models/idCounter')

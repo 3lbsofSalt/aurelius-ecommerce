@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { NavigationCategoryI } from '~/server/models/ProductNavigation';
-import type { SettingI } from '~/server/models/Setting';
 import type { TagI } from '~/server/models/Tag';
 
 definePageMeta({
@@ -14,20 +13,23 @@ if(error.value || !routePrivs.value.includes('Navigation')) {
 
 const errorStore = useErrorStore();
 
+// Adding a new main category
 const selectedMainCategory = ref<{title: string, value: TagI} | undefined>(undefined);
 
+// Tags
 const { data: tags, error: tagError } = await useFetch<TagI[]>('/api/tags');
 if(tagError) {
   errorStore.error = 'There was an error getting the tags';
 }
 
+// Getting the navigation categories
 const { data: productNavigationCategories, error: productNavigationError, refresh: refreshProductNavigationCategories } = await useFetch<NavigationCategoryI[]>('/api/navigation/products');
-if(productNavigationError) {
-  errorStore.error = 'There was an error getting the current navigation categories';
-}
+if(productNavigationError) { errorStore.error = 'There was an error getting the current navigation categories'; }
+console.log(productNavigationCategories.value);
 
+
+// Getting the main categories that are left over
 const selectableMainCategories = computed(() : { title: string, value: TagI }[] => {
-  console.log(tags.value)
   return tags.value
     ?.filter(tag => !productNavigationCategories.value?.find(cat => tag.name === cat.main.name))
     .map((tag) => ({ title: tag.name, value: tag})) || [];
@@ -53,6 +55,31 @@ function deleteProductMainCategory(id : string) {
     .catch(() => { errorStore.error = 'There was an error deleting the product category.'; });
 }
 
+// Setting up the editable data for subcategories
+/*
+[
+  [id, id, id], [id, id], ...
+]
+*/
+const editableProdNavSubCats = ref(productNavigationCategories.value?.map(cat => {
+  return cat.subcategories?.map((subcat) => subcat._id);
+}) || []);
+
+console.log(editableProdNavSubCats);
+
+// All tags except the one provided
+function allTagsExceptYours(currentTag: string) { return tags.value?.filter((tag) => tag.name !== currentTag) || []; }
+// Update the tags
+function updateTags(index : number) { 
+  const cat = editableProdNavSubCats.value[index];
+  $fetch('/api/admin/navigation/products/' + productNavigationCategories.value?.[index]._id, {
+    method: 'put',
+    body: {
+      subcategories: cat
+    }
+  });
+}
+
 </script>
 
 <template>
@@ -76,14 +103,22 @@ function deleteProductMainCategory(id : string) {
         ></v-combobox>
       </v-list-item>
       <v-list-item
-        v-for="cat in productNavigationCategories"
+        v-for="(cat, i) in productNavigationCategories"
         :key="cat._id"
         :title="cat.main.name"
       >
         <v-combobox 
+          v-model="editableProdNavSubCats[i]"
           label="Subcategories"
           variant="outlined" 
           class="ma-2"
+          :items="allTagsExceptYours(cat.main.name).map(tag => ({
+            title: tag.name, value: tag._id
+          }))"
+          @blur="updateTags(i)"
+          chips
+          multiple
+          :return-object="false"
         ></v-combobox>
         <template v-slot:append>
           <v-btn 

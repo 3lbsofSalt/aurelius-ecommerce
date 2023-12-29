@@ -1,3 +1,4 @@
+import mongoose from 'mongoose';
 import { Schema, model } from 'mongoose';
 
 export interface counterI {
@@ -10,4 +11,8 @@ const CounterSchema = new Schema({
   seq: { type: Number, default: 0 }
 });
 
-export default model('counter', CounterSchema);
+let exportModel = mongoose.models?.counter;
+if(!exportModel) {
+  exportModel = model('counter', CounterSchema); 
+}
+export default exportModel;

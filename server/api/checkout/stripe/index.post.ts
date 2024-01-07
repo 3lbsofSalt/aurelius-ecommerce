@@ -5,7 +5,9 @@ import Order from "~/server/models/Order";
 import { getCurrentUser } from "~/server/utils/user";
 import type { CartItemI } from "~/server/models/subdocuments/Cart";
 import Stripe from 'stripe';
+import EasyPostClient, { type IRate, type IShipment } from '@easypost/api';
 import { baseImageUrl } from "~/utils/imageRetrieval";
+import type { PackedBox } from "~/server/utils/binPacking";
 
 export default defineEventHandler(async (event) => {
   const logger = useLogger();
@@ -44,7 +46,9 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const {
     cart,
-    billingAddress
+    billingAddress,
+    shippingAddress,
+    shipping
   } = body;
 
   const stripeLineItems = cart.items.map((item : CartItemI) => {
@@ -53,24 +57,87 @@ export default defineEventHandler(async (event) => {
         currency: 'USD',
         product_data: {
           name: item.item.name,
-          description: item.item.description,
+          description: item.item.description || 'No Description',
           //images: [baseImageUrl(item.item.baseImagePath || '', item.item.images[0])], // We only need one image
           metadata: {
             _id: String(item.item._id)
           }
         },
-        unit_amount_decimal: item.item.price * 100,
+        unit_amount_decimal: Math.round(item.item.price * 100),
       },
       quantity: item.quantity
     }
   });
 
+  const total = stripeLineItems.reduce((acc: number, item: any) => {
+    return acc + (item.price_data.unit_amount_decimal * item.quantity);
+  }, 0);
+
+  const totalTax = Math.round(total * salesTax);
+
+  stripeLineItems.push({
+    price_data: {
+      currency: 'USD',
+      product_data: {
+        name: 'Sales Tax',
+        description: 'Sales Tax'
+      },
+      unit_amount_decimal: totalTax
+    },
+    quantity: 1
+  })
+
+  let stripeShippingObject = undefined;
+  const shipments: IShipment[] = [];
+  const rates: IRate[] = [];
+  if(shipping.selectedShipping !== 'pickup') {
+    const packedBoxes: PackedBox[] = shipping.packedBoxes;
+    const shippingObjectIds: string[] = shipping.shippingObjectIds;
+    const selectedShippingRateIds: string[] = shipping.selectedShipping;
+
+    const [apiKeyError, apiKey] = await safeAwait(Setting.findOne({ type: 'shipping', subtype: 'easypost', name: 'apikey' }));
+    if(apiKeyError || !apiKey?.value) { logger.error(apiKeyError); throw createError({ statusCode: 500, statusMessage: 'There was an error getting the easypost api key' }); }
+    const easyPostClient = new EasyPostClient(apiKey.value);
+
+    for(const shipmentId of shippingObjectIds) {
+      const [shipmentError, shipment] = await safeAwait(easyPostClient.Shipment.retrieve(shipmentId));
+      if(shipmentError) { logger.error(shipmentError); throw createError({ statusCode: 500, statusMessage: 'There was an error getting the shipment' })}
+
+      shipments.push(shipment);
+    }
+
+    let shipmentTotal = 0;
+    for(const rateIdIndex in selectedShippingRateIds) {
+      const rateId = selectedShippingRateIds[rateIdIndex];
+      const shipment =  shipments[rateIdIndex];
+      const rate = shipment.rates.find(rate => rate.id === rateId);
+      if(!rate) {
+        throw createError({ statusCode: 500, statusMessage: 'There was an error getting the correct rate' });
+      }
+      rates.push(rate);
+      shipmentTotal += parseFloat(rate.rate);
+    }
+    stripeShippingObject = {
+      shipping_rate_data: {
+        display_name: 'Shipping by ' + rates[0].carrier,
+        fixed_amount: {
+          amount: Math.ceil((shipmentTotal || 0) * 100),
+          currency: 'USD'
+        },
+        type: 'fixed_amount',
+        tax_behavior: 'inclusive'
+      }
+    }
+  }
+
+  console.log(shipping);
   const stripe = new Stripe(stripeKey);
 
   const [stripeError, checkoutSession] = await safeAwait(stripe.checkout.sessions.create({
     line_items: stripeLineItems,
     mode: 'payment',
     success_url: 'http://localhost:3000',
+    shipping_options: stripeShippingObject ? [stripeShippingObject] : undefined
     //cancel_url:  'localhost:3000'
   }));
 
@@ -83,6 +150,8 @@ export default defineEventHandler(async (event) => {
   }
 
   const [_, user] = await safeAwait(getCurrentUser(event));
+
+  console.log(checkoutSession);
 
   const [orderError] = await safeAwait(Order.create({
     name: 'Online Order for ' + billingAddress.fullname,
@@ -100,6 +169,13 @@ export default defineEventHandler(async (event) => {
     paymentType: 'Stripe',
     paymentStatus: 'Pending',
     orderStatus: 'Processing',
+    shippingType: shipping.selectedShipping === 'pickup' ? 'Pickup' : 'Shipping',
+    shipping: shipping.selectedShipping === 'pickup' ? {} : {
+      address: shippingAddress,
+      packedBoxes: shipping.packedBoxes,
+      selectedShipping: shipping.selectedShipping
+    },
+    salesTax: totalTax
   }));
 
   if(orderError) {
@@ -110,5 +186,5 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  sendRedirect(event, checkoutSession.url, 303);
+  return checkoutSession.url;
 });

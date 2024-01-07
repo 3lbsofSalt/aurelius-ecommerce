@@ -1,4 +1,4 @@
-import { Schema, model } from 'mongoose';
+import mongoose, { Schema, model } from 'mongoose';
 import Cart from './subdocuments/Cart';
 import type { CartI } from './subdocuments/Cart';
 import safeAwait from 'safe-await';
@@ -19,9 +19,23 @@ export interface AddressI {
   postalcode: string,
   country: string,
   phone: string,
+  // Only necessary for shipping (don't even need it now that we have easypost)
   residential?: boolean 
-  // Only necessary for shipping. Also, is totally a guess based on wether or not they say company
 }
+
+export const emptyAddress: AddressI = {
+  fullname: '',
+  company: '',
+  street1: '',
+  street2: '',
+  street3: '',
+  city: '',
+  state: '',
+  postalcode: '',
+  country: '',
+  phone: '',
+  residential: true 
+};
 
 export interface OrderIUnpopulated {
   _id: Number,
@@ -41,8 +55,11 @@ export interface OrderIUnpopulated {
   billingAddress: AddressI,
   shippingType: 'Pickup' | 'Shipping',
   shipping?: {
-    address: AddressI
-  }
+    address: AddressI,
+    packedBoxes: PackedBox,
+    selectedRates: string[]
+  },
+  salesTax?: number
 }
 
 export interface OrderI {
@@ -64,7 +81,10 @@ export interface OrderI {
   shippingType: 'Pickup' | 'Shipping',
   shipping?: {
     address: AddressI
-  }
+    packedBoxes: PackedBox,
+    selectedRates: string[]
+  },
+  salesTax?: number
 }
 
 const Order = new Schema<OrderIUnpopulated>({
@@ -91,7 +111,6 @@ const Order = new Schema<OrderIUnpopulated>({
     enum: paymentStatuses
   },
   transactionId: String,
-
   orderStatus: {
     type: String,
     default: 'Processing',
@@ -125,16 +144,21 @@ const Order = new Schema<OrderIUnpopulated>({
       phone: String,
       residential: Boolean
     },
-    /*
-    shipstationObj: {
-      serviceName: String,
-      serviceCode: String, 
-      shipmentCost: Number,
-      otherCost: Number
-    }
-    */
-  }
-
+    packedBoxes: [{
+      dimensions: {
+        length: Number,
+        width: Number,
+        height: Number
+      },
+      items: {
+        type: Map,
+        of: Number
+      },
+      weightInGrams: Number
+    }],
+    selectedRates: [{type: String}]
+  },
+  salesTax: Number
 }, {
   timestamps: true
 });
@@ -154,5 +178,8 @@ Order.pre('save', async function(next) {
 
 });
 
-
-export default model<OrderIUnpopulated>('Order', Order);
+let exportModel = mongoose.models?.Order;
+if(!exportModel) {
+  exportModel = model<OrderI>('Order', Order);
+}
+export default exportModel;

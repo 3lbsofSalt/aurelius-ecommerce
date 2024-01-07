@@ -23,7 +23,7 @@ export const makeShipstationRequest = async () => {
 
 }
 
-export const convertWeightsToGrams = (weights: WeightI[]) => {
+export const convertWeightsToGrams = (weights: WeightI[]) : number => {
   let total = 0;
   for(const weight of weights) {
     if(weight.units === 'grams') {
@@ -34,6 +34,8 @@ export const convertWeightsToGrams = (weights: WeightI[]) => {
       total += (weight.quantity * 453.5924)
     }
   }
+
+  return total;
 }
 
 export interface carrierType {

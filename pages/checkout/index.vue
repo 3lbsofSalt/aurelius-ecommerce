@@ -1,10 +1,15 @@
 <script setup lang="ts">
+import type { IShipping, IRate } from '@easypost/api';
+import type { SettingI } from '~/server/models/Setting';
 const cartStore = useCartStore();
+import type { PackedBox } from '~/server/utils/binPacking';
 
-const { data: payOnPickupThreshold } = await useFetch('/api/setting/payOnPickupThreshold');
-const { data: allowPayOnPickup } = await useFetch('/api/setting/allowPayOnPickup');
+const { data: payOnPickupThreshold } = await useFetch<SettingI>('/api/setting/payOnPickupThreshold');
+const { data: salesTax } = await useFetch<SettingI>('/api/setting/salesTax');
+const actualSalesTax: number = parseFloat(salesTax.value?.toString() || '0');
+const { data: allowPayOnPickup } = await useFetch<SettingI>('/api/setting/allowPayOnPickup');
 
-const shipping = ref('pickup');
+const shipping = ref<'pickup' | IRate[]>('pickup');
 const shippingAddress = reactive({
   fullname: '',
   company: '',
@@ -32,13 +37,75 @@ const billingAddress = reactive({
   country: 'US',
 })
 
+const gettingShippingRates = ref(false);
+
+// Please note that both of these are corresponding on index
+const shippingObject = ref<IShipping[]>([]);
+const packedBoxes = ref<PackedBox[]>([]);
 function getShippingRates() {
+  if(gettingShippingRates.value) return;
+  gettingShippingRates.value = true;
   $fetch('/api/shipping/rates', {
     query: {
       weightInGrams: cartStore.totalWeightGrams,
-      shippingAddress
+      shippingAddress: shippingAddress,
+      cart: cartStore.cart
     }
-  });
+  })
+    .then((res: (PackedBox[]| IShipping[])[]) => {
+      shippingObject.value = res[1];
+    })
+    .finally(() => {
+      gettingShippingRates.value = false;
+    });
+}
+
+const carriers = computed(() : string[] => {
+  const carrierArr: string[] = []
+  for(const shipping of shippingObject.value) {
+    shipping.rates.map((rate: IRate) => { if(!carrierArr.includes(rate.carrier)) carrierArr.push(rate.carrier);  });
+  }
+  return carrierArr;
+});
+
+// Find the lowest rate for each carrier
+const shippingRates = computed(() => {
+  const rates: IRate[][] = [];
+  for(const carrier of carriers.value) {
+    const lowestCarrierRateForItem: IRate[] = [];
+    for(const itemShipping of shippingObject.value) {
+      lowestCarrierRateForItem.push(itemShipping.rates.reduce((accumulator: IRate | null, rate: IRate) => {
+        if((accumulator === null || parseFloat(rate.rate) < parseFloat(accumulator.rate)) && rate.carrier === carrier) {
+          return rate;
+        }
+        return accumulator;
+      }, null));
+    }
+    rates.push(lowestCarrierRateForItem);
+  }
+
+  return rates;
+});
+
+interface compiledRate {
+  rate: number,
+  deliveryDays: (number | null)[],
+  carrier: string
+}
+
+function getRatesInfo(rates: IRate[]) {
+  const info: compiledRate = {
+    rate: 0,
+    deliveryDays: [],
+    carrier: rates[0].carrier
+  };
+
+  for(const rate of rates) {
+    info.rate += parseFloat(rate.rate);
+    info.deliveryDays.push(rate.delivery_days);
+  }
+
+  return info;
 }
 
 function payOnPickup() {
@@ -61,10 +128,23 @@ function payWithStripe() {
     body: {
       billingAddress,
       shippingAddress,
-      cart: cartStore.cart
+      cart: cartStore.cart,
+      shipping: {
+        packedBoxes,
+        shippingObjectIds: shippingObject.value.map((obj: IShipping) => obj.id),
+        selectedShipping: shipping.value === 'pickup' ? 'pickup' : shipping.value.map((shiprate) => shiprate.id)
+      }
     }
   })
-    .then((res) => { console.log(res); });
+    .then((res) => { 
+      console.log('boo');
+      console.log(res); 
+      navigateTo(res, { external: true });
+    })
+    .catch((err) => {
+      console.log('oof');
+      console.log(err);
+    });
 }
 </script>
 <template>
@@ -192,11 +272,6 @@ function payWithStripe() {
             </v-card>
           </template>
 
-
-
-
-
-
           <template v-slot:item.2>
             <v-form>
               <v-row
@@ -288,9 +363,15 @@ function payWithStripe() {
               v-model="shipping"
             >
               <v-radio label="Pickup In Store" value="pickup"></v-radio>
+              <v-radio 
+                v-for="rateCombo in shippingRates"
+                :label="getRatesInfo(rateCombo).carrier + ' - $' + (getRatesInfo(rateCombo).rate).toFixed(2)"
+                :value="rateCombo"
+              ></v-radio>
             </v-radio-group>
             <v-btn
               @click="getShippingRates"
+              :loading="gettingShippingRates"
             >Calculate Shipping Rates</v-btn>
           </template>
 
@@ -376,22 +457,33 @@ function payWithStripe() {
                 ></v-text-field>
               </v-row>
             </v-form>
+            <v-row>
+              <v-row>
+                Subtotal: ${{ cartStore.total.toFixed(2) }}
+                Sales Tax: ${{ (Math.round(cartStore.total * actualSalesTax * 100) / 100).toFixed(2) }}
+                Shipping: ${{ shipping === 'pickup' ? 'Pick Up In Store ($0.00)' : roundToNextCent(getRatesInfo(shipping).rate).toFixed(2) }}
+                Total: ${{ cartStore.total + (Math.round(cartStore.total * actualSalesTax * 100) / 100) + (shipping === 'pickup' ? 0 : getRatesInfo(shipping).rate) }}
+              </v-row>
+            </v-row>
+            <v-row>
             <v-btn
-              :disabled="!allowPayOnPickup && shipping === 'pickup'"
+              :v-if="!allowPayOnPickup && shipping === 'pickup'"
               color="primary"
               block
               rounded="0"
               variant="outlined"
               @click="payOnPickup"
             >Pay On Pickup</v-btn>
+            </v-row>
+            <v-row>
             <v-btn
-              :disabled="!allowPayOnPickup && shipping === 'pickup'"
               color="primary"
               block
               rounded="0"
               variant="outlined"
               @click="payWithStripe"
             >Pay With Stripe</v-btn>
+            </v-row>
           </template>
         </v-stepper>
       </v-card>

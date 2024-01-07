@@ -24,8 +24,7 @@ if(tagError) {
 
 // Getting the navigation categories
 const { data: productNavigationCategories, error: productNavigationError, refresh: refreshProductNavigationCategories } = await useFetch<NavigationCategoryI[]>('/api/navigation/products');
-if(productNavigationError) { errorStore.error = 'There was an error getting the current navigation categories'; }
-console.log(productNavigationCategories.value);
+if(productNavigationError.value) { errorStore.error = 'There was an error getting the current navigation categories'; }
 
 
 // Getting the main categories that are left over

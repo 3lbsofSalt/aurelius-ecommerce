@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import type { DimensionsI } from '~/server/models/InventoryItem';
 import type { SettingI } from '~/server/models/Setting';
+import { emptyAddress } from '~/server/models/Order';
 
 definePageMeta({
   layout: 'admin'
@@ -65,33 +67,37 @@ function updateStripeAccountId() {
   });
 }
 
-const { data: shipstationAPIKey } = await useFetch<SettingI>('/api/admin/settings/externalApps/shipping/shipStationAPIKey');
-const { data: shipstationAPISecret } = await useFetch<SettingI>('/api/admin/settings/externalApps/shipping/shipStationAPISecret');
-const { data: shipFromZipCode } = await useFetch<SettingI>('/api/admin/settings/externalApps/shipping/shipFromZipCode');
-const editableShipstationAPIKey = ref(shipstationAPIKey.value?.value);
-const editableShipstationAPISecret = ref(shipstationAPISecret.value?.value);
-const editableShipFromZipCode = ref(shipFromZipCode.value?.value);
+const { data: easyPostAPIKey } = await useFetch<SettingI>('/api/admin/settings/shipping/easypost/apikey');
+const editableEasyPostAPIKey = ref(easyPostAPIKey.value?.value);
 
-function updateShipstationAPIKey() {
-  $fetch('/api/admin/settings/externalApps/shipping/shipStationAPIKey', {
+function updateEasyPostAPIKey() {
+  $fetch('/api/admin/settings/shipping/easypost/apikey', {
     method: 'put',
-    body: { value: editableShipstationAPIKey.value }
-  });
-}
-function updateShipstationAPISecret() {
-  $fetch('/api/admin/settings/externalApps/shipping/shipStationAPISecret', {
-    method: 'put',
-    body: { value: editableShipstationAPISecret.value }
-  });
-}
-function updateShipFromZipCode() {
-  $fetch('/api/admin/settings/externalApps/shipping/shipFromZipCode', {
-    method: 'put',
-    body: { value: editableShipFromZipCode.value }
+    body: { value: editableEasyPostAPIKey.value }
   });
 }
 
+const { data: shipFromAddress } = await useFetch<SettingI>('/api/admin/settings/shipping/shipFrom/address');
+const editableShipFromAddress = ref(shipFromAddress.value?.value || emptyAddress);
 
+function updateShipFromAddress() {
+  $fetch('/api/admin/settings/shipping/shipFrom/address', {
+    method: 'put',
+    body: { value: editableShipFromAddress.value }
+  });
+
+}
+
+const { data: availableBins } = await useFetch<SettingI>('/api/admin/settings/shipping/config/bins');
+const editableAvailableBins = ref((availableBins.value?.value || []) as DimensionsI[]);
+function addBin() { editableAvailableBins.value.push({ length: 0, width: 0, height: 0 }); }
+function removeBin(index: number) { editableAvailableBins.value.splice(index, 1); }
+function saveBins() { 
+  $fetch('/api/admin/settings/shipping/config/bins', {
+    method: 'put',
+    body: { value: editableAvailableBins.value }
+  });
+}
 </script>
 
 <template>
@@ -107,6 +113,7 @@ function updateShipFromZipCode() {
     >
       <v-tab value="orders">Orders</v-tab>
       <v-tab value="external_apps">External Apps</v-tab>
+      <v-tab value="shipping">Shipping</v-tab>
     </v-tabs>
 
     <v-card-text>
@@ -173,27 +180,148 @@ function updateShipFromZipCode() {
               variant="outlined"
             />
           </v-card>
+        </v-window-item>
+        <v-window-item value="shipping">
           <v-card
-            outlined
-            class="ma-4 pa-4"
-            title="ShipStation"
+            title="Shipping Info"
+          >
+            <v-form>
+              <v-row
+                class="pa-4"
+              >
+                <div
+                  class="text-primary text-h5"
+                >Shipping Address</div>
+              </v-row>
+              <v-row
+                class="px-4"
+              >
+                <v-text-field
+                  v-model="editableShipFromAddress.fullname"
+                  class="mr-4"
+                  variant="outlined"
+                  label="Name"
+                ></v-text-field>
+                <v-text-field
+                  v-model="editableShipFromAddress.company"
+                  variant="outlined"
+                  label="Company (Only Fill if Shipping to your Business Location)"
+                ></v-text-field>
+              </v-row>
+              <v-row
+                class="px-4"
+              >
+                <v-text-field
+                  v-model="editableShipFromAddress.street1"
+                  variant="outlined"
+                  label="Street Line 1"
+                ></v-text-field>
+              </v-row>
+              <v-row
+                class="px-4"
+              >
+                <v-text-field
+                  v-model="editableShipFromAddress.street2"
+                  variant="outlined"
+                  label="Street Line 2"
+                ></v-text-field>
+              </v-row>
+              <v-row
+                class="px-4"
+              >
+                <v-text-field
+                  v-model="editableShipFromAddress.city"
+                  variant="outlined"
+                  label="City"
+                ></v-text-field>
+                <v-text-field
+                  class="ml-4"
+                  v-model="editableShipFromAddress.state"
+                  variant="outlined"
+                  label="State"
+                ></v-text-field>
+                <v-text-field
+                  class="mx-4"
+                  v-model="editableShipFromAddress.postalcode"
+                  variant="outlined"
+                  label="Zip Code"
+                ></v-text-field>
+                <v-text-field
+                  v-model="editableShipFromAddress.country"
+                  variant="outlined"
+                  label="Country (e.g. US)"
+                ></v-text-field>
+              </v-row>
+              <v-row
+                class="px-4"
+              >
+                <v-text-field
+                  v-model="editableShipFromAddress.phonenumber"
+                  variant="outlined"
+                  label="Phone Number"
+                ></v-text-field>
+              </v-row>
+              <v-row
+              >
+                <v-btn
+                  @click="updateShipFromAddress"
+                  class="mb-4 ml-4"
+                  block
+                  color="admin"
+                >Save Shipping Address</v-btn>
+              </v-row>
+            </v-form>
+          </v-card>
+          <v-card
+            title="Shipping Box Sizes"
+          >
+            <v-row
+              v-for="bin, i in editableAvailableBins"
+              class="pa-4 ga-4"
+            >
+              <v-text-field 
+                label="Length"
+                v-model.number="bin.length"
+                min="0"
+                variant="outlined"
+              />
+              <v-text-field 
+                label="Width"
+                v-model.number="bin.width"
+                min="0"
+                variant="outlined"
+              />
+              <v-text-field 
+                label="Height"
+                v-model.number="bin.height"
+                min="0"
+                variant="outlined"
+              />
+              <v-btn
+                color="error"
+                icon="fas fa-trash-can"
+                @click="removeBin(i)"
+              ></v-btn>
+            </v-row>
+            <v-btn
+              @click="addBin"
+              block
+              color="admin"
+            >Add New Container</v-btn>
+            <v-btn
+              @click="saveBins"
+              block
+              class="my-2"
+              color="admin"
+            >Save Bins</v-btn>
+          </v-card>
+          <v-card
+            title="EasyPost"
           >
             <v-text-field
-              label="Shipstation API Key"
-              v-model="editableShipstationAPIKey"
-              @blur="updateShipstationAPIKey"
-              variant="outlined"
-            />
-            <v-text-field
-              label="Shipstation API Secret"
-              v-model="editableShipstationAPISecret"
-              @blur="updateShipstationAPISecret"
-              variant="outlined"
-            />
-            <v-text-field
-              label="From Zip Code"
-              v-model="editableShipFromZipCode"
-              @blur="updateShipFromZipCode"
+              label="API Key"
+              v-model="editableEasyPostAPIKey"
+              @blur="updateEasyPostAPIKey"
               variant="outlined"
             />
           </v-card>

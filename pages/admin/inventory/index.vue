@@ -21,7 +21,8 @@ const headers = [
 ];
 
 const { data: inventoryItems, error: inventoryError, refresh: inventoryRefresh } = await useFetch<InventoryItemI[]>('/api/inventory');
-if(inventoryError) {
+if(inventoryError.value) {
+  console.log(inventoryError.value);
   errorStore.error = 'There was an error getting the inventory items.';
 }
 
@@ -33,7 +34,7 @@ function stopCreatingItem() {
 function startCreatingItem() { creatingItem.value = true; }
 
 const { data: tags, error: tagError, refresh: refreshTags } = await useFetch<TagI[]>('/api/tags');
-if(tagError) {
+if(tagError.value) {
   errorStore.error = 'There was an error getting the tags';
 }
 

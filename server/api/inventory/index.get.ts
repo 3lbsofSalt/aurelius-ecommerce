@@ -7,7 +7,9 @@ export default defineEventHandler(async (event) => {
 
   const query = getQuery(event);
 
-  const criteria = {};
+  const criteria = {
+    active: true
+  };
 
   if(query.categoryId) {
     //@ts-ignore

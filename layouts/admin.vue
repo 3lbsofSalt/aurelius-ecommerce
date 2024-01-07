@@ -1,6 +1,8 @@
 <script setup lang="ts">
 const authStore = useAuthStore();
 const drawer = ref('false');
+const errorStore = useErrorStore();
+const { isError } = storeToRefs(errorStore);
 
 onMounted(async () => {
   await authStore.checkForSession();
@@ -65,5 +67,10 @@ onMounted(async () => {
         <slot />
       </div>
     </v-main>
+
+    <ErrorToast
+      :visible="isError"
+      :message="errorStore.error"
+    />
   </v-app>
 </template>

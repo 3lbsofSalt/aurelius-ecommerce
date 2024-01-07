@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
   const logger = useLogger();
   const id = getRouterParam(event, 'id');
 
-  const [error, order] = await safeAwait(Order.findOne({ _id: id }));
+  const [error, order] = await safeAwait(Order.findOne({ _id: id }).populate('customer'));
 
   if(error) {
     logger.error(error);

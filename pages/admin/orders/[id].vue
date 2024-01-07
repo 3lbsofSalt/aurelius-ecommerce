@@ -15,8 +15,7 @@ const errorStore = useErrorStore();
 const route = useRoute();
 const { data: order, error: orderError } = await useFetch<OrderI>('/api/admin/orders/' + route.params.id);
 
-console.log(order.value);
-if(orderError || !order.value) {
+if(orderError.value || !order.value) {
   errorStore.error = 'There was an error getting this Order';
 }
 </script>
@@ -50,9 +49,7 @@ if(orderError || !order.value) {
           title="Order Cart"
           class="sans-serif w-100"
         >
-          <v-expansion-panels
-          >
-          </v-expansion-panels>
+          <v-row></v-row>
         </v-card>
       </v-col>
       <v-col class="pa-1">

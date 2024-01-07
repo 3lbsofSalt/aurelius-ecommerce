@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 import safeAwait from 'safe-await';
 import type { InventoryItemI } from '~/server/models/InventoryItem';
-import { UserI } from '~/server/models/User';
+import type { UserI } from '~/server/models/User';
 import type { CartI, CartItemI } from '~/server/models/subdocuments/Cart';
 import { emptyCart } from '~/server/models/subdocuments/Cart';
 
@@ -16,9 +16,10 @@ export const useCartStore = defineStore('cart', {
 
   getters: {
     isEmpty: (state) => state.cart.items.length <= 0,
-    total: (state) => state.cart.items.reduce((accumulator, item) => (
-      accumulator + (Number.parseInt(item.item.price.toString()) * Number.parseInt(item.quantity.toString()))
-    ), 0),
+    total: (state) => state.cart.items.reduce((accumulator, item) => {
+      console.log(item.item.price);
+      return accumulator + (Number.parseFloat(item.item.price.toString()) * Number.parseFloat(item.quantity.toString()))
+    }, 0),
     totalQuantity: (state) => state.cart.items.reduce((accumulator, item) => (
       accumulator + Number.parseInt(item.quantity.toString())
     ), 0),

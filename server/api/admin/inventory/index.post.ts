@@ -2,7 +2,7 @@ import safeAwait from "safe-await";
 import InventoryItem, { validWeightUnits, validInputTypes } from "~/server/models/InventoryItem";
 import { useLogger } from "@nuxt/kit";
 
-import { isAlphanumeric, isWideRangeAlphanumeric, isCurrency, isPositiveInteger } from '~/utils/validationFunctions';
+import { isAlphanumeric, isWideRangeAlphanumeric, isCurrency, isPositiveInteger, isPositiveNumber } from '~/utils/validationFunctions';
 import formidable from 'formidable';
 import { randomUUID } from 'crypto';
 import { readFileSync } from 'node:fs';
@@ -38,12 +38,14 @@ export default defineEventHandler(async (event) => {
   const weight = { units: weightUnits, quantity: weightQty };
   const inputFields = JSON.parse(fields.inputFields[0]);
   const imagesData = fields.imagesData.map((data:any) => JSON.parse(data));
-
+  const dimensions = JSON.parse(fields.dimensions[0]);
+  const shipIndividually = JSON.parse(fields.shipIndividually[0]);
+  const individualPackageDimensions = JSON.parse(fields.individualPackageDimensions[0]);
 
   if(
     !isAlphanumeric(name) || 
-      !isWideRangeAlphanumeric(description) || 
-      !isCurrency(price)
+    !isWideRangeAlphanumeric(description) || 
+    !isCurrency(price)
   ) {
     throw createError({
       statusCode: 422,
@@ -57,11 +59,41 @@ export default defineEventHandler(async (event) => {
   ) {
     throw createError({
       statusCode: 422,
-      statusMessage: 'The weight quatity or units or'
+      statusMessage: 'The weight quantity or units was not provided'
     });
   }
 
-  if(inputFields.some((input:any) => !validInputTypes.includes(input.type) || !isWideRangeAlphanumeric(input.description) || !isWideRangeAlphanumeric(input.name))) {
+  if(
+    !isPositiveNumber(dimensions.length) || 
+    !isPositiveNumber(dimensions.width) || 
+    !isPositiveNumber(dimensions.height)
+  ) {
+    throw createError({
+      statusCode: 422,
+      statusMessage: 'The length width and height must all be positive numbers.'
+    });
+  }
+
+  console.log(individualPackageDimensions);
+  if(shipIndividually) {
+    if(!individualPackageDimensions.length || individualPackageDimensions.length <= 0 ||
+      !individualPackageDimensions.width || individualPackageDimensions.width <= 0 ||
+      !individualPackageDimensions.height || individualPackageDimensions.height <= 0 
+    ) {
+      throw createError({
+        statusCode: 422,
+        statusMessage: 'If packaging individually, must provide a width, length, and height of preferred package'
+      });
+    }
+  }
+
+  // Check input fields. Name is required description is not
+  if(inputFields.some((input:any) => 
+      !validInputTypes.includes(input.type) || 
+      !isWideRangeAlphanumeric(input.description) || 
+      !input.name || 
+      !isWideRangeAlphanumeric(input.name)
+  )) {
     throw createError({
       statusCode: 422,
       statusMessage: 'The inputs were ill-formed'
@@ -101,7 +133,10 @@ export default defineEventHandler(async (event) => {
     weight,
     customerInputFields: inputFields,
     images: imageMetaData,
-    baseImagePath: inventoryImageLocationPrefix
+    baseImagePath: inventoryImageLocationPrefix,
+    dimensions,
+    shipIndividually,
+    individualPackageDimensions: individualPackageDimensions
   }));
 
   if(inventoryCreateError) {

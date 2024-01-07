@@ -19,7 +19,7 @@ const headers = [
 ]
 
 const { data: users, error: usersError } = await useFetch<UserI[]>('/api/admin/users');
-if(usersError) {
+if(usersError.value) {
   errorStore.error = 'There was an error getting the users.';
 }
 

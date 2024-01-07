@@ -10,6 +10,12 @@ export interface WeightI {
   quantity: number
 }
 
+export interface DimensionsI {
+  length: number,
+  width: number,
+  height: number
+}
+
 export const validInputTypes = ['download', 'text', 'select'];
 
 export interface CustomInputFieldsI {
@@ -33,11 +39,13 @@ export interface InventoryItemI {
   tags: TagI[],
   dateAdded?: Date,
   dateModified?: Date,
-  timesSold?: number,
   images: InventoryImageI[],
-  baseImagePath?: string,
+  baseImagePath: string,
   customerInputFields?: CustomInputFieldsI[],
-  weight?: WeightI,
+  weight: WeightI,
+  dimensions: DimensionsI,
+  shipIndividually: boolean,
+  individualPackageDimensions?: DimensionsI,
   active?: boolean
 }
 
@@ -76,7 +84,6 @@ export const InventoryItemSchema = new Schema<InventoryItemI>({
     type: Date,
     default: Date.now
   },
-  timesSold: Number,
   // Adding any image name to the baseImagePath will point to their location in the filesystem
   // on the S3 bucket. This allows the baseImagePath to never change even between name
   // changes of the inventory item (the name of the item is appended with a randomly generated UUID)
@@ -118,6 +125,41 @@ export const InventoryItemSchema = new Schema<InventoryItemI>({
       required: true,
       default: '1'
     },
+  },
+  dimensions: {
+    length: {
+      type: Number,
+      required: true
+    },
+    width: {
+      type: Number,
+      required: true
+    },
+    height: {
+      type: Number,
+      required: true
+    }
+  },
+  shipIndividually: {
+    type: Boolean,
+    default: false
+  },
+  individualPackageDimensions: {
+    type: {
+      length: {
+        type: Number,
+        required: true
+      },
+      width: {
+        type: Number,
+        required: true
+      },
+      height: {
+        type: Number,
+        required: true
+      },
+    },
+    required: false
   },
   active: {
     type: Boolean,

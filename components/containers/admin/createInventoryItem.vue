@@ -14,6 +14,9 @@ const errorStore = useErrorStore();
 const props = defineProps({open: Boolean});
 const emit = defineEmits<{ (e: 'close') : void }>();
 
+// Checks wether the item is currently being uploaded or not.
+const uploading = ref(false);
+
 const name = ref('');
 const description = ref('');
 const price = ref('0');
@@ -21,6 +24,13 @@ const tags = ref<TagI[]>([]);
 const weight = ref<WeightI>({ units: 'pounds', quantity: 0 });
 const inputFields = ref<CustomInputFieldsI[]>([]);
 const images = ref<(InventoryImageI & { location: string, data: File})[]>([]);
+const length = ref<string>('0');
+const width = ref<string>('0');
+const height = ref<string>('0');
+const shipIndividually = ref<boolean>(false);
+const boxLength = ref(0);
+const boxWidth = ref(0);
+const boxHeight = ref(0);
 
 const { data: tagList, error: tagError, refresh: tagRefresh } = await useFetch<TagI[]>('/api/tags');
 
@@ -34,6 +44,13 @@ watch(() => props.open, (newOpen) => {
     weight.value = { units: 'pounds', quantity: 0 };
     inputFields.value = [];
     images.value = [];
+    length.value = '0';
+    width.value = '0';
+    height.value = '0';
+    shipIndividually.value = false;
+    boxLength.value = 0;
+    boxHeight.value = 0;
+    boxWidth.value = 0;
   }
 });
 
@@ -76,17 +93,27 @@ function createItem() {
   formData.append('weightUnits', weight.value.units);
   formData.append('weightQty', weight.value.quantity.toString());
   formData.append('inputFields', JSON.stringify(inputFields.value));
+  formData.append('dimensions', JSON.stringify({
+    length: parseFloat(length.value),
+    width: parseFloat(width.value),
+    height: parseFloat(height.value)
+  }));
+  formData.append('shipIndividually', JSON.stringify(shipIndividually.value));
+  formData.append('individualPackageDimensions', JSON.stringify({ length: boxLength.value, width: boxWidth.value, height: boxHeight.value }));
   for(const image of images.value) {
     formData.append('images', image.data, image.name);
     formData.append('imagesData', JSON.stringify({ name: image.name, altText: image.altText }));
   }
+
+  uploading.value = true;
 
   $fetch('/api/admin/inventory', {
     method: 'post',
     body: formData
   })
     .then(() => { emit('close'); })
-    .catch(() => { errorStore.error = 'There was an error creating the item.' });
+    .catch(() => { errorStore.error = 'There was an error creating the item.' })
+    .finally(() => { uploading.value = false });
 
 }
 
@@ -112,30 +139,33 @@ function createItem() {
             <v-col>
               <v-text-field
                 v-model="name"
-                label="Name"
+                label="Name *"
                 variant="outlined"
                 required
                 :rules="requiredAlphaNumericRules"
+                :disabled="uploading"
               ></v-text-field>
             </v-col>
           </v-row>
           <v-row>
             <v-col>
-              <v-text-field
+              <v-textarea
                 v-model="description"
                 label="Description"
                 variant="outlined"
+                :disabled="uploading"
                 multiline
                 :rules="wideRangeAlphaNumericRules"
-              ></v-text-field>
+              ></v-textarea>
             </v-col>
           </v-row>
           <v-row>
             <v-col>
               <v-text-field
                 v-model="price"
-                label="Price ($)"
+                label="Price ($) *"
                 variant="outlined"
+                :disabled="uploading"
                 required
                 :rules="requiredCurrencyRules"
               ></v-text-field>
@@ -148,6 +178,7 @@ function createItem() {
                 label="Tags"
                 variant="outlined"
                 multiple
+                :disabled="uploading"
                 chips
                 required
                 :items="(tagList || []).map(tag => ({ title: tag.name, value: tag }))"
@@ -156,9 +187,29 @@ function createItem() {
           </v-row>
           <v-row>
             <v-col>
+              <ReusableImageEditor
+                :disabled="uploading"
+                :images="images"
+                :editing="true"
+                @add-images="addImages"
+                @change-image-name="changeImageName"
+                @change-image-alt="changeImageAlt"
+                @move-image="moveImage"
+                @remove-image="removeImage"
+              />
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <div>Shipping Info</div>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
               <v-select
                 v-model="weight.units"
-                label="Weight Units"
+                label="Weight Units *"
+                :disabled="uploading"
                 variant="outlined"
                 required
                 :items="[
@@ -172,8 +223,9 @@ function createItem() {
           <v-row>
             <v-col>
               <v-text-field
-                v-model="weight.quantity"
-                label="Weight Quantity"
+                v-model.number="weight.quantity"
+                label="Weight Quantity *"
+                :disabled="uploading"
                 variant="outlined"
                 :rules="requiredPositiveIntegerRules"
                 required
@@ -182,17 +234,90 @@ function createItem() {
           </v-row>
           <v-row>
             <v-col>
-              <ReusableImageEditor
-                :images="images"
-                :editing="true"
-                @add-images="addImages"
-                @change-image-name="changeImageName"
-                @change-image-alt="changeImageAlt"
-                @move-image="moveImage"
-                @remove-image="removeImage"
-              />
+              <v-text-field
+                v-model="length"
+                label="Length (in.) *"
+                variant="outlined"
+                :disabled="uploading"
+                :rules="requiredPositiveNumberRules"
+                required
+              ></v-text-field>
             </v-col>
           </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-model="width"
+                label="Width (in.) *"
+                variant="outlined"
+                :disabled="uploading"
+                :rules="requiredPositiveNumberRules"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-text-field
+                v-model="height"
+                label="Height (in.) *"
+                :disabled="uploading"
+                variant="outlined"
+                :rules="requiredPositiveNumberRules"
+                required
+              ></v-text-field>
+            </v-col>
+          </v-row>
+          <v-row>
+            <v-col>
+              <v-checkbox
+                v-model="shipIndividually"
+                :disabled="uploading"
+                label="Ship Individually * (This item will be shipped in its own box)"
+                required
+              ></v-checkbox>
+            </v-col>
+          </v-row>
+          <template
+            v-if="shipIndividually"
+          >
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-model.number="boxLength"
+                  label="Length (in.) of Preferred Shipping Box *"
+                  variant="outlined"
+                  :disabled="uploading"
+                  :rules="requiredPositiveNumberRules"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-model.number="boxWidth"
+                  label="Width (in.) of Preferred Shipping Box *"
+                  variant="outlined"
+                  :disabled="uploading"
+                  :rules="requiredPositiveNumberRules"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-text-field
+                  v-model.number="boxHeight"
+                  label="Height (in.) of Preferred Shipping Box *"
+                  :disabled="uploading"
+                  variant="outlined"
+                  :rules="requiredPositiveNumberRules"
+                  required
+                ></v-text-field>
+              </v-col>
+            </v-row>
+          </template>
           <v-row>
             <v-col>
               <div class="text-h4">Customer Inputs</div>
@@ -203,10 +328,11 @@ function createItem() {
               <v-col>
                 <v-text-field
                   v-model="fields.name"
-                  label="Field Name"
+                  label="Field Name *"
                   variant="outlined"
+                  :disabled="uploading"
                   required
-                  :rules="requiredAlphaNumericRules"
+                  :rules="requiredWideRangeAlphaNumericRules"
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -216,6 +342,7 @@ function createItem() {
                   v-model="fields.type"
                   label="Data Type"
                   variant="outlined"
+                  :disabled="uploading"
                   :items="[
                     { value: 'text', title: 'Text' },
                     { value: 'download', title: 'File' }
@@ -227,6 +354,7 @@ function createItem() {
                 <v-checkbox
                   label="Required"
                   v-model="fields.required"
+                  :disabled="uploading"
                 ></v-checkbox>
               </v-col>
             </v-row>
@@ -237,6 +365,7 @@ function createItem() {
                   v-model=fields.description
                   variant="outlined"
                   :rules="wideRangeAlphaNumericRules"
+                  :disabled="uploading"
                 ></v-text-field>
               </v-col>
             </v-row>
@@ -245,6 +374,7 @@ function createItem() {
               prepend-icon="fas fa-trash-can"
               color="error"
               @click="deleteInputField(i)"
+              :disabled="uploading"
             >Delete Field</v-btn>
             <v-divider
               class="ma-4"
@@ -253,6 +383,7 @@ function createItem() {
           <v-btn
             block
             @click="addInputField"
+            :disabled="uploading"
           >Add Customer Input Field</v-btn>
           <v-divider
             class="ma-4"
@@ -261,6 +392,7 @@ function createItem() {
             color="admin"
             block
             type="submit"
+            :disabled="uploading"
           >
             Create Item
           </v-btn>
@@ -268,4 +400,8 @@ function createItem() {
       </v-container>
     </v-card>
   </v-dialog>
+  <v-snackbar
+    class="text-primary sans-serif"
+    v-model="uploading"
+  >Item Uploading</v-snackbar>
 </template>

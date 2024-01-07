@@ -29,8 +29,26 @@ cart and checkout are done.
     - [x] Edit Cart
 - [ ] Checkout Functionality
     - [x] Correct Price
+    - [ ] Checkout with pay on pickup
+        - [ ] Deny pay on pickup for large orders
     - [ ] Checkout with stripe
-    - [ ] Shipping :(
+        - [x] Take care of sales tax on our side
+        - [x] Send Shipping info to stripe
+        - [x] Save Shipping info on our side
+        - [ ] Send Taxes to Stripe
+        - [ ] Add taxes to order
+        - [ ] Go to a success page,
+        - [ ] Set order to be paid on our side
+        - [ ] Your order has finished email
+        - [ ] Ensure pay on pickup doesn't work if not picking up
+    - [ ] Shipping :)
+        - [x] Pack boxes
+        - [x] Implement individually shipped items
+        - [x] Double check to make sure that searching for items by id won't mess everything up.
+        - [x] Add weight to packed box type
+        - [x] Interface with easy post
+        - [x] Select Shipping at checkout
+        - [x] Save packing on order. 
 - [ ] Orders Show Up
     - [ ] Twill be easy
 ### Detail Work and Mobile Design - Dec 30th
@@ -40,6 +58,8 @@ cart and checkout are done.
 
 ### Important Detail Things
 - [ ] Make the country code for shipping a selectable dropdown
+- [ ] Shipping costs in utah are taxexempt if stated separately (not as part of the price of the product)
+    however, if I bump up the cost of shipping to cover my own expenses are they still tax exempt?
 
 ### Auth
 - [ ] Github sign up callback to account management

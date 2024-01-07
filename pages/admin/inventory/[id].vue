@@ -14,11 +14,13 @@ const errorStore = useErrorStore();
 
 
 const editing = ref(false);
+const uploading = ref(false);
 
 const route = useRoute();
 const { data: item, error: getItemError, refresh: refetchItem } = await useFetch<InventoryItemI>('/api/inventory/' + route.params.id);
 
-if(getItemError) {
+if(getItemError.value || !item.value) {
+  console.log(getItemError.value);
   errorStore.error = 'There was an error getting the inventory item.';
 }
 
@@ -28,6 +30,13 @@ const editableItem = ref({...item.value});
 const editableWeight = ref({ ...item.value?.weight });
 const editableTags = ref([ ...(item.value?.tags || []).map((tag) => ({ title: tag.name, value: tag })) ]);
 const editableInputFields = ref([ ...(item.value?.customerInputFields || []) ]);
+const editableLength = ref(item.value?.dimensions?.length);
+const editableWidth = ref(item.value?.dimensions?.width);
+const editableHeight = ref(item.value?.dimensions?.height);
+const editableShipIndividually = ref(item.value?.shipIndividually || false);
+const boxLength = ref(item.value?.individualPackageDimensions?.length || 0);
+const boxWidth = ref(item.value?.individualPackageDimensions?.width || 0);
+const boxHeight = ref(item.value?.individualPackageDimensions?.height || 0);
 
 async function reloadItem() {
   await refetchItem();
@@ -35,12 +44,17 @@ async function reloadItem() {
   editableWeight.value = { ...item.value?.weight };
   editableTags.value = [ ...(item.value?.tags || []).map((tag) => ({ title: tag.name, value: tag })) ];
   editableInputFields.value = [ ...(item.value?.customerInputFields || []) ];
+  editableShipIndividually.value = item.value?.shipIndividually || false;
+  boxLength.value = item.value?.individualPackageDimensions?.length || 0;
+  boxHeight.value = item.value?.individualPackageDimensions?.height || 0;
+  boxWidth.value = item.value?.individualPackageDimensions?.width || 0;
 }
 
 
 function addInputField() {
   editableInputFields.value.push({ name: '', type: 'text', description: '', required: false });
 }
+
 function deleteInputField(index: number) {
   editableInputFields.value.splice(index, 1);
 }
@@ -66,20 +80,33 @@ async function saveOrEdit() {
     formData.append('weightUnits', editableWeight.value.units || '');
     formData.append('weightQty', editableWeight.value.quantity?.toString() || '');
     formData.append('imagesToRemove', JSON.stringify(deletedImages.value) || '[]');
+    formData.append('dimensions', JSON.stringify({
+      length: parseFloat(editableLength.value?.toString() || '0'),
+      width: parseFloat(editableWidth.value?.toString() || '0'),
+      height: parseFloat(editableHeight.value?.toString() || '0')
+    }));
+    formData.append('shipIndividually', JSON.stringify(editableShipIndividually.value));
+    formData.append('individualPackageDimensions', JSON.stringify({ length: boxLength.value, width: boxWidth.value, height: boxHeight.value }));
     for(const image of editableImages.value) {
       // An image with data and without an _id, is a new image that needs to be uploaded
       formData.append('images', image?.data || new Blob([]), image.name);
       formData.append('imagesData', JSON.stringify({ _id: image._id, name: image.name, altText: image.altText }));
     }
+
+    uploading.value = true;
     $fetch('/api/admin/inventory/' + item.value?._id, {
       method: 'put',
       body: formData
     })
-      .then(() => { reloadItem(); })
-      .catch(() => { errorStore.error = 'There was an error trying to update the item. Please try again.'; });
+      .then(() => { 
+        editing.value = false;
+        reloadItem(); 
+      })
+      .catch(() => { errorStore.error = 'There was an error trying to update the item. Please try again.'; })
+      .finally(() => { uploading.value = false; });
+  } else {
+    editing.value = true;
   }
-
-  editing.value = !editing.value;
 }
 
 
@@ -135,16 +162,19 @@ function toggleActive() {
         class="mr-3"
         v-if="editing"
         @click="() => { reloadItem(); editing = false; }"
+            :disabled="uploading"
       >Cancel</v-btn>
       <v-btn 
         :prepend-icon="editableItem.active ? 'fas fa-trash-can' : 'fas fa-trash-can-arrow-up'" 
         :color="editableItem.active ? 'error' : 'admin'"
         class="mr-3"
         @click="toggleActive"
+            :disabled="uploading"
       >{{'Make ' + (editableItem.active ? 'Inactive' : 'Active')}}</v-btn>
       <v-btn 
         color="admin"
         @click="saveOrEdit"
+            :disabled="uploading"
       >{{editing ? 'Save' : 'Edit'}}</v-btn>
     </template>
     <v-card-text>
@@ -157,18 +187,20 @@ function toggleActive() {
             variant="outlined"
             :readonly="!editing"
             :rules="requiredAlphaNumericRules"
+            :disabled="uploading"
           ></v-text-field>
         </v-col>
       </v-row>
       <v-row>
         <v-col>
-          <v-text-field 
+          <v-textarea
             label="Description"
             v-model="editableItem.description"
             variant="outlined"
             :readonly="!editing"
             :rules="wideRangeAlphaNumericRules"
-          ></v-text-field>
+            :disabled="uploading"
+          ></v-textarea>
         </v-col>
       </v-row>
 
@@ -181,6 +213,7 @@ function toggleActive() {
             required
             :readonly="!editing"
             :rules="requiredCurrencyRules"
+            :disabled="uploading"
           ></v-text-field>
         </v-col>
       </v-row>
@@ -195,7 +228,22 @@ function toggleActive() {
             required
             :readonly="!editing"
             :items="(tagList || []).map(tag => ({ title: tag.name, value: tag }))"
+            :disabled="uploading"
           ></v-combobox>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <ReusableImageEditor
+            :images="editableImages"
+            :editing="editing"
+            @add-images="addImages"
+            @change-image-name="changeImageName"
+            @change-image-alt="changeImageAlt"
+            @move-image="moveImage"
+            @remove-image="removeImage"
+            :disabled="uploading"
+          />
         </v-col>
       </v-row>
       <v-row>
@@ -211,6 +259,7 @@ function toggleActive() {
               {title: 'Ounces', value: 'ounces'},
               {title: 'Grams', value: 'grams'},
             ]"
+            :disabled="uploading"
           ></v-select>
         </v-col>
       </v-row>
@@ -223,22 +272,96 @@ function toggleActive() {
             :readonly="!editing"
             :rules="requiredPositiveIntegerRules"
             required
+            :disabled="uploading"
           ></v-text-field>
         </v-col>
       </v-row>
       <v-row>
         <v-col>
-          <ReusableImageEditor
-            :images="editableImages"
-            :editing="editing"
-            @add-images="addImages"
-            @change-image-name="changeImageName"
-            @change-image-alt="changeImageAlt"
-            @move-image="moveImage"
-            @remove-image="removeImage"
-          />
+          <v-text-field
+            v-model="editableLength"
+            label="Length (in.) *"
+            variant="outlined"
+            :rules="requiredPositiveNumberRules"
+            required
+            :disabled="uploading"
+          ></v-text-field>
         </v-col>
       </v-row>
+      <v-row>
+        <v-col>
+          <v-text-field
+            v-model="editableWidth"
+            label="Width (in.) *"
+            variant="outlined"
+            :rules="requiredPositiveNumberRules"
+            required
+            :disabled="uploading"
+          ></v-text-field>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <v-text-field
+            v-model="editableHeight"
+            label="Height *"
+            variant="outlined"
+            :rules="requiredPositiveNumberRules"
+            required
+            :disabled="uploading"
+          ></v-text-field>
+        </v-col>
+      </v-row>
+      <v-row>
+        <v-col>
+          <v-checkbox
+            v-model="editableShipIndividually"
+            label="Ship Individually *"
+            required
+            :disabled="uploading"
+          ></v-checkbox>
+        </v-col>
+      </v-row>
+      <template
+        v-if="editableShipIndividually"
+      >
+        <v-row>
+          <v-col>
+            <v-text-field
+              v-model.number="boxLength"
+              label="Length (in.) of Preferred Shipping Box *"
+              variant="outlined"
+              :disabled="uploading"
+              :rules="requiredPositiveNumberRules"
+              required
+            ></v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-text-field
+              v-model.number="boxWidth"
+              label="Width (in.) of Preferred Shipping Box *"
+              variant="outlined"
+              :disabled="uploading"
+              :rules="requiredPositiveNumberRules"
+              required
+            ></v-text-field>
+          </v-col>
+        </v-row>
+        <v-row>
+          <v-col>
+            <v-text-field
+              v-model.number="boxHeight"
+              label="Height (in.) of Preferred Shipping Box *"
+              :disabled="uploading"
+              variant="outlined"
+              :rules="requiredPositiveNumberRules"
+              required
+            ></v-text-field>
+          </v-col>
+        </v-row>
+      </template>
       <v-row>
         <v-col>
           <div class="text-h4">Customer Inputs</div>
@@ -253,7 +376,8 @@ function toggleActive() {
               variant="outlined"
               required
               :readonly="!editing"
-              :rules="requiredAlphaNumericRules"
+              :rules="requiredWideRangeAlphaNumericRules"
+            :disabled="uploading"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -263,12 +387,13 @@ function toggleActive() {
               v-model="fields.type"
               label="Data Type"
               variant="outlined"
-            :readonly="!editing"
+              :readonly="!editing"
               :items="[
                 { value: 'text', title: 'Text' },
                 { value: 'download', title: 'File' }
               ]"
               required
+            :disabled="uploading"
             ></v-select>
           </v-col>
           <v-col>
@@ -276,6 +401,7 @@ function toggleActive() {
               label="Required"
               :readonly="!editing"
               v-model="fields.required"
+            :disabled="uploading"
             ></v-checkbox>
           </v-col>
         </v-row>
@@ -287,6 +413,7 @@ function toggleActive() {
               variant="outlined"
               :readonly="!editing"
               :rules="wideRangeAlphaNumericRules"
+            :disabled="uploading"
             ></v-text-field>
           </v-col>
         </v-row>
@@ -299,13 +426,17 @@ function toggleActive() {
           color="error"
           @click="deleteInputField(i)"
           v-if="editing"
+            :disabled="uploading"
         >Delete Field</v-btn>
       </template>
       <v-btn
         block
         @click="addInputField"
-        :disabled="!editing"
+        :disabled="!editing || uploading"
       >Add Customer Input Field</v-btn>
     </v-card-text>
   </v-card>
+  <v-snackbar
+    v-model="uploading"
+  >Saving Item</v-snackbar>
 </template>

@@ -20,5 +20,5 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  return setting.value;
+  return setting?.value ?? '0';
 });

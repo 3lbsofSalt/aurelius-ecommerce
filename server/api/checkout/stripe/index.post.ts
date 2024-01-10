@@ -12,6 +12,8 @@ import type { PackedBox } from "~/server/utils/binPacking";
 export default defineEventHandler(async (event) => {
   const logger = useLogger();
 
+
+
   const [settingError, settings] = await safeAwait(Setting.find({
     type: ['orders', 'externalApps'],
     subtype: ['taxes', 'checkout'],
@@ -130,15 +132,15 @@ export default defineEventHandler(async (event) => {
     }
   }
 
-  console.log(shipping);
   const stripe = new Stripe(stripeKey);
+  const origin = getRequestURL(event).origin;
 
   const [stripeError, checkoutSession] = await safeAwait(stripe.checkout.sessions.create({
     line_items: stripeLineItems,
     mode: 'payment',
-    success_url: 'http://localhost:3000',
+    success_url: origin + '',
     shipping_options: stripeShippingObject ? [stripeShippingObject] : undefined
-    //cancel_url:  'localhost:3000'
+    //cancel_url:  'http://localhost:3000'
   }));
 
   if(stripeError || !checkoutSession.url) {

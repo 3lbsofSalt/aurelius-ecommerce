@@ -4,19 +4,10 @@ import type { SettingI } from '~/server/models/Setting';
 const cartStore = useCartStore();
 import type { PackedBox } from '~/server/utils/binPacking';
 
-const { data: payOnPickupThreshold } = await useFetch<string>('/api/setting/payOnPickupThreshold');
+const { data: payOnPickupThreshold } = await useFetch<SettingI>('/api/setting/payOnPickupThreshold');
 const { data: salesTax } = await useFetch<SettingI>('/api/setting/salesTax');
 const actualSalesTax: number = parseFloat(salesTax.value?.toString() || '0');
-const { data: allowPayOnPickup } = await useFetch<boolean>('/api/setting/allowPayOnPickup');
-console.log(payOnPickupThreshold.value);
-
-const payOnPickupThresholdNum = computed(() => {
-  return parseFloat(payOnPickupThreshold.value ?? '0').toFixed(2);
-})
-
-const payOnPickupDisabled = computed(() => {
-  return parseFloat(payOnPickupThreshold.value ?? '0') < cartStore.total;
-});
+const { data: allowPayOnPickup } = await useFetch<SettingI>('/api/setting/allowPayOnPickup');
 
 const billingAddressForm = ref(false);
 
@@ -493,25 +484,14 @@ function payWithStripe() {
               >
                 <v-col>
                   <v-btn
-                    v-if="allowPayOnPickup && shipping === 'pickup'"
+                    :v-if="allowPayOnPickup && shipping === 'pickup'"
                     type="submit"
                     color="primary"
                     block
                     rounded="0"
                     variant="outlined"
                     @click="payOnPickup"
-                    :disabled="payOnPickupDisabled"
                   >Pay On Pickup</v-btn>
-                </v-col>
-              </v-row>
-              <v-row
-                v-if="payOnPickupDisabled && allowPayOnPickup"
-                no-gutters
-              >
-                <v-col>
-                  <div
-                    class="text-caption"
-                  >Pay on pickup is not allowed for orders over {{ payOnPickupThresholdNum }}</div>
                 </v-col>
               </v-row>
               <v-row

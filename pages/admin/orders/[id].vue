@@ -1,5 +1,7 @@
 <script setup lang="ts">
+// Next, get total, tax. Then validate billing info
 import type { OrderI } from '~/server/models/Order';
+import { orderStatuses, paymentTypes, paymentStatuses } from '~/server/models/Order';
 
 definePageMeta({
   layout: 'admin'
@@ -12,9 +14,9 @@ if(permissionsError.value || !routePrivs.value.includes('Inventory')) {
 
 const cartHeaders = [
   { title: 'Image', value: 'image' }, 
-  { title: 'Name', value: 'name' },
+  { title: 'Name', value: 'item.name' },
   { title: 'Qty', value: 'quantity' },
-  { title: 'Price', value: 'price' },
+  { title: 'Price', value: 'item.price' },
   { title: 'Total', value: 'total' }
 ];
 
@@ -26,6 +28,11 @@ const { data: order, error: orderError } = await useFetch<OrderI>('/api/admin/or
 if(orderError.value || !order.value) {
   errorStore.error = 'There was an error getting this Order';
 }
+
+const paymentType = ref(order.value?.paymentType);
+const paymentStatus = ref(order.value?.paymentStatus);
+const orderStatus = ref(order.value?.orderStatus);
+
 </script>
 
 <template>
@@ -48,6 +55,46 @@ if(orderError.value || !order.value) {
         </v-card>
       </v-col>
     </v-row>
+
+    <v-row>
+      <v-col class="pa-1">
+        <v-card
+          class="sans-serif w-100"
+        >
+          <v-container>
+            <v-row>
+            </v-row>
+            <v-row>
+              <v-col>
+                <v-select 
+                  label="Payment Type"
+                  variant="outlined"
+                  v-model="paymentType"
+                  :items="paymentTypes"
+                />
+              </v-col>
+              <v-col>
+                <v-select 
+                  label="Payment Status"
+                  variant="outlined"
+                  v-model="paymentStatus"
+                  :items="paymentStatuses"
+                />
+              </v-col>
+              <v-col>
+                <v-select 
+                  label="Order Status"
+                  variant="outlined"
+                  v-model="orderStatus"
+                  :items="orderStatuses"
+                />
+              </v-col>
+            </v-row>
+          </v-container>
+        </v-card>
+      </v-col>
+    </v-row>
+
     <v-row>
       <v-col 
         cols="8"
@@ -58,27 +105,23 @@ if(orderError.value || !order.value) {
           class="sans-serif w-100"
         >
           <v-data-table
-            show-expand
             :headers="cartHeaders"
+            :items="order?.cart.items"
           >
+            <template v-slot:item.image="{ item }">
+              <v-avatar
+                rounded="0"
+              >
+                <v-img 
+                  cover
+                  :src="baseImageUrl(item.item.baseImagePath, item.item.images[0])"
+                />
+              </v-avatar>
+            </template>
+            <template v-slot:item.total="{ item }">
+              {{(item.quantity * item.item.price).toFixed(2)}}
+            </template>
           </v-data-table>
-          <v-container>
-
-            <v-row
-              v-for="item in order?.cart.items"
-            >
-              <v-col>
-              <v-img
-                width="80"
-                cover
-                aspect-ratio="1/1"
-                :src="baseImageUrl(item.item.baseImagePath || '', item.item.images[0])"
-              ></v-img>
-              </v-col>
-              <v-col>{{item.item.name}}</v-col>
-              <v-col>Qty: {{item.quantity}} @ {{item.item.price.toFixed(2)}} = {{(item.quantity * item.item.price)}}</v-col>
-            </v-row>
-          </v-container>
         </v-card>
       </v-col>
       <v-col class="pa-1">

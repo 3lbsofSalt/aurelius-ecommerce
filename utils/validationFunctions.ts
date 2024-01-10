@@ -1,3 +1,7 @@
+export const requiredRules = [
+  (v: string) => !!v || 'This field is required'
+];
+
 export const requiredAlphaNumericRules = [
   (v: string) => !!v || 'This field is required',
   (v: string) => isAlphanumeric(v) || 'Field can only have numbers, letters, spaces, !\'s, ?\'s, and underscores.'

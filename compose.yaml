@@ -4,15 +4,17 @@ services:
   www:
     build:
       context: .
-      dockerfile: Dockerfile.dev
-    image: aurelius_dev
-    container_name: aurelius_dev
-    command: npm run dev
+      dockerfile: Dockerfile
+    image: aurelius
+    container_name: aurelius
+    command: npm start
     volumes:
       - .:/app
       - /app/node_modules
     ports:
       - "3000:3000"
+    env_file:
+      - .env
     networks:
       app-network:
         ipv4_address: 192.168.3.50

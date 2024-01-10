@@ -10,6 +10,7 @@ import bcrypt from 'bcryptjs';
 import User from '~/server/models/User';
 
 export default NuxtAuthHandler({
+  secret: process.env.AUTH_SECRET,
   pages: {
     signIn: '/login'
   },

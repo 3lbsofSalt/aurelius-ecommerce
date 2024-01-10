@@ -12,7 +12,12 @@ export default defineNuxtConfig({
       DIGITAL_OCEAN_SPACES_ENDPOINT: 'https://sfo3.digitaloceanspaces.com',
       DIGITAL_OCEAN_SPACES_RETRIEVAL_ENDPOINT: 'https://3lbsofsaltdevelopment.sfo3.digitaloceanspaces.com/',
       DIGITAL_OCEAN_SPACES_BUCKET: '3lbsofsaltdevelopment',
-      DIGITAL_OCEAN_SPACES_FILE_PREFIX: 'aurelius_dev/'
+      DIGITAL_OCEAN_SPACES_FILE_PREFIX: 'aurelius_dev/',
+      auth: {
+        computed: {
+          origin: process.env.AUTH_ORIGIN
+        }
+      }
     }
   },
 

@@ -15,4 +15,4 @@ RUN npm run build
 
 # ENV PATH ./node_modules/.bin/:$PATH
 
-CMD ["node", ".output/server/index.mjs"]
+CMD ["node", ".output/server/index.mjs", "--host"]

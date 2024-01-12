@@ -16,4 +16,4 @@ RUN npx nuxi prepare
 ENV PATH ./node_modules/.bin/:$PATH
 EXPOSE 3000
 
-CMD npm start
+CMD ["node", ".output/server/index.mjs"]

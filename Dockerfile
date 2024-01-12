@@ -11,7 +11,7 @@ RUN npm install && npm cache clean --force
 COPY . .
 
 RUN npx nuxi prepare
-# RUN npm run build
+RUN npm run build
 
 ENV PATH ./node_modules/.bin/:$PATH
 EXPOSE 3000

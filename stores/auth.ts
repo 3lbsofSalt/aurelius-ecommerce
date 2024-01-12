@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia';
-import { UserI } from '~/server/models/User';
+import type { UserI } from '~/server/models/User';
 
 interface State {
   email: string,
@@ -16,11 +16,11 @@ export const useAuthStore = defineStore('auth', {
     permissionGroup: 'Basic'
   }),
   getters: {
-    isLoggedIn: (state) : boolean => {
+    isLoggedIn: (state: UserI) : boolean => {
       if(!state.email || state.email == '') return false;
       return true;
     },
-    isAdmin: (state) : boolean => {
+    isAdmin: (state: UserI) : boolean => {
       if(!state.permissionGroup || state.permissionGroup === 'Basic') {
         return false;
       }
@@ -32,7 +32,8 @@ export const useAuthStore = defineStore('auth', {
       const { data: user, error } = await useFetch<UserI>('/api/session');
 
       if(error.value) {
-        return this.$reset();
+        this.$reset();
+        return 
       }
 
       this.email = user.value?.email || '';

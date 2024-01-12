@@ -13,6 +13,6 @@ COPY . .
 RUN npx nuxi prepare
 RUN npm run build
 
-ENV PATH ./node_modules/.bin/:$PATH
+# ENV PATH ./node_modules/.bin/:$PATH
 
 CMD ["node", ".output/server/index.mjs"]

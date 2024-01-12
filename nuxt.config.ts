@@ -3,24 +3,6 @@ import defaultTheme from './assets/theme';
 export default defineNuxtConfig({
   devtools: { enabled: true },
 
-  runtimeConfig: {
-    GITHUB_CLIENT_ID: 'dummy',
-    GITHUB_CLIENT_SECRET: 'dummy',
-    MONGODB_URL: 'dummy',
-    MONGODB_NAME: 'dummy',
-    public: {
-      DIGITAL_OCEAN_SPACES_ENDPOINT: 'https://sfo3.digitaloceanspaces.com',
-      DIGITAL_OCEAN_SPACES_RETRIEVAL_ENDPOINT: 'https://3lbsofsaltdevelopment.sfo3.digitaloceanspaces.com/',
-      DIGITAL_OCEAN_SPACES_BUCKET: '3lbsofsaltdevelopment',
-      DIGITAL_OCEAN_SPACES_FILE_PREFIX: 'aurelius_dev/',
-      auth: {
-        computed: {
-          origin: process.env.AUTH_ORIGIN
-        }
-      }
-    }
-  },
-
   css: [
     '~/assets/variables.scss'
   ],

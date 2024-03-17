@@ -15,11 +15,12 @@ export default NuxtAuthHandler({
     signIn: '/login'
   },
   providers: [
-    
+    // @ts-expect-error
     GithubProvider.default({
       clientId: process.env.GITHUB_CLIENT_ID,
       clientSecret: process.env.GITHUB_CLIENT_SECRET
     }),
+    // @ts-expect-error
     CredentialsProvider.default({
       name: 'Credentials',
       async authorize(credentials: any) {

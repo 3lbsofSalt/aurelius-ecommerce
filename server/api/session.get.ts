@@ -5,9 +5,7 @@ import { useLogger } from '@nuxt/kit';
 
 export default eventHandler(async (event) => {
   const logger = useLogger();
-  console.log('iaeiros')
   const session = await getServerSession(event);
-  console.log('aeiorstnbxcvzbkmy')
 
   if(!session) {
     throw createError({
@@ -15,8 +13,6 @@ export default eventHandler(async (event) => {
       statusMessage: 'Unauthenticated'
     });
   }
-
-  console.log('iaerstembzxcvnea')
 
   const [error, user] = await safeAwait(User.findOne({ email: session.user.email }, '-hash -activationToken -resetToken'));
   if(error) {

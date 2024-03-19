@@ -24,6 +24,7 @@ export default NuxtAuthHandler({
     CredentialsProvider.default({
       name: 'Credentials',
       async authorize(credentials: any) {
+        console.log(process.env.AUTH_ORIGIN)
         const logger = useLogger();
         const email = credentials.email;
         const password = credentials.password;

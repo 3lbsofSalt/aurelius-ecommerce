@@ -14,6 +14,10 @@ export default defineNuxtConfig({
     'nuxt-mongoose'
   ],
 
+  auth: {
+    origin: process.env.AUTH_ORIGIN
+  },
+
   vuetify: {
     moduleOptions: {
 

@@ -32,9 +32,11 @@ export default NuxtAuthHandler({
         const [error, user] = await safeAwait(User.findOne({ email }));
 
         if(error) {
+          console.log('there was an error');
           logger.error(error);
         }
 
+        console.log(user);
         if(!error && user && bcrypt.compareSync(password, user.hash)) {
           return user;
         }

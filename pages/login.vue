@@ -9,8 +9,7 @@ const email = ref('');
 const password = ref('');
 
 async function handleLogin() {
-  console.log(useAuthState()._internal.baseURL);
-  //const ret = await signIn('credentials', { callbackUrl: '/', email:email.value, password:password.value });
+  const ret = await signIn('credentials', { callbackUrl: '/', email:email.value, password:password.value });
 }
 
 </script>

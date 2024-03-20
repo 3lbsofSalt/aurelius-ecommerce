@@ -1,13 +1,16 @@
 <script setup lang="ts">
 const { signIn } = useAuth();
 
+import { useAuthState } from '#imports';
+
 defineProps(['open', 'onClose']);
 
 const email = ref('');
 const password = ref('');
 
 async function handleLogin() {
-  const ret = await signIn('credentials', { callbackUrl: '/', email:email.value, password:password.value });
+  console.log(useAuthState()._internal.baseURL);
+  //const ret = await signIn('credentials', { callbackUrl: '/', email:email.value, password:password.value });
 }
 
 </script>

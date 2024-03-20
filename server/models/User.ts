@@ -96,6 +96,9 @@ User.pre('save', async function(next) {
   const doc = this;
   if(!doc.isNew) next();
   const [error, nextId] = await safeAwait(counter.findByIdAndUpdate({_id: 'user_id'}, {$inc: {seq: 1}, new: true, upsert: true}));
+  console.log('id')
+  console.log(nextId)
+  console.log(error);
   if(error) throw error;
   if(nextId == null) {
     const seq = await counter.create({_id: 'user_id', seq: 1});

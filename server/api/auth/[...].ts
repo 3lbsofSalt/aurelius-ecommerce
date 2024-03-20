@@ -44,6 +44,7 @@ export default NuxtAuthHandler({
           logger.error(error);
         }
 
+        console.log('This is the user that I got!');
         console.log(user);
         if(!error && user && bcrypt.compareSync(password, user.hash)) {
           return user;

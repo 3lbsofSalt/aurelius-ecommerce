@@ -53,7 +53,6 @@ export interface InventoryItemI {
 export const InventoryItemSchema = new Schema<InventoryItemI>({
   _id: {
     type: Number,
-    unique: true
   },
   name: {
     type: String,

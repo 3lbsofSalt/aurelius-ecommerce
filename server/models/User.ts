@@ -1,5 +1,5 @@
 import { Schema, model } from 'mongoose';
-import Cart, { type CartI } from './subdocuments/Cart';
+import Cart, { type CartI, emptyCart } from './subdocuments/Cart';
 import safeAwait from 'safe-await';
 import counter from './idCounter';
 
@@ -61,7 +61,10 @@ const User = new Schema<UserI>({
     type: String,
     default: 'Basic'
   },
-  cart: Cart,
+  cart: {
+    type: Cart,
+    default: emptyCart
+  },
   shippingAddress: {
     fullname: String,
     company: String,
@@ -96,7 +99,7 @@ User.pre('save', async function(next) {
   const doc = this;
   if(!doc.isNew) next();
   const [error, nextId] = await safeAwait(counter.findByIdAndUpdate({_id: 'user_id'}, {$inc: {seq: 1}, new: true, upsert: true}));
-  console.log('id')
+  console.log('user id')
   console.log(nextId)
   console.log(error);
   if(error) throw error;
@@ -106,7 +109,10 @@ User.pre('save', async function(next) {
   } else {
     doc._id = nextId.seq;
   }
+
+  doc.cart = emptyCart;
   next();
 });
+
 
 export default model<UserI>('User', User);

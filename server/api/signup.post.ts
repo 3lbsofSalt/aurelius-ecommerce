@@ -40,6 +40,8 @@ export default defineEventHandler(async (event) => {
     name
   }));
 
+  console.log('error here')
+
   if(error) {
     logger.error(error);
     throw createError({

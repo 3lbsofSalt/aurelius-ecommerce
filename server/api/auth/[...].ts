@@ -31,6 +31,14 @@ export default NuxtAuthHandler({
 
         const [error, user] = await safeAwait(User.findOne({ email }));
 
+        console.log(error);
+        console.log(user);
+        const [quickErr, quickUser] = await safeAwait(User.find());
+        console.log('quick')
+        console.log(quickErr);
+        console.log(quickUser);
+
+
         if(error) {
           console.log('there was an error');
           logger.error(error);

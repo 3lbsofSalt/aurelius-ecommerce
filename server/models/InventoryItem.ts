@@ -32,7 +32,8 @@ export interface InventoryImageI {
 }
 
 export interface InventoryItemI {
-  _id: number,
+  _id: string,
+  id?: number,
   name: string,
   description?: string,
   price: number,
@@ -51,7 +52,7 @@ export interface InventoryItemI {
 
 
 export const InventoryItemSchema = new Schema<InventoryItemI>({
-  _id: {
+  id: {
     type: Number,
   },
   name: {
@@ -177,15 +178,12 @@ InventoryItemSchema.pre('save', async function(next) {
   const doc = this;
   if(!doc.isNew) next();
   const [error, nextId] = await safeAwait(counter.findByIdAndUpdate({_id: 'inventory_item_id'}, {$inc: {seq: 1}, new: true, upsert: true}));
-  console.log('id')
-  console.log(nextId)
-  console.log(error);
   if(error) throw error;
   if(nextId == null) {
     const seq = await counter.create({_id: 'inventory_item_id', seq: 1});
-    doc._id = seq.seq;
+    doc.id = seq.seq;
   } else {
-    doc._id = nextId.seq;
+    doc.id = nextId.seq;
   }
   next();
 

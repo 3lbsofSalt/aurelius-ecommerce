@@ -38,7 +38,8 @@ export const emptyAddress: AddressI = {
 };
 
 export interface OrderIUnpopulated {
-  _id: Number,
+  _id?: String,
+  id: Number,
   name: String,
   customer?: number,
   customerContactInfo?: {
@@ -63,7 +64,8 @@ export interface OrderIUnpopulated {
 }
 
 export interface OrderI {
-  _id: Number,
+  _id?: String,
+  id: Number,
   name: String,
   customer?: number,
   customerContactInfo?: {
@@ -89,7 +91,7 @@ export interface OrderI {
 
 const Order = new Schema<OrderIUnpopulated>({
   // Need Tax -> Move to cart?
-  _id: Number,
+  id: Number,
   name: String,
   customer: {
     type: Schema.Types.ObjectId,
@@ -170,9 +172,9 @@ Order.pre('save', async function(next) {
   if(error) throw error;
   if(nextId == null) {
     const seq = await counter.create({_id: 'order_id', seq: 1});
-    doc._id = seq.seq;
+    doc.id = seq.seq;
   } else {
-    doc._id = nextId.seq;
+    doc.id = nextId.seq;
   }
   next();
 

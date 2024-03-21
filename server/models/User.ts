@@ -4,7 +4,8 @@ import safeAwait from 'safe-await';
 import counter from './idCounter';
 
 export interface UserI {
-  _id: number,
+  _id?: string,
+  id: number,
   email: string,
   name?: string,
   phone?: string,
@@ -30,7 +31,7 @@ export interface UserI {
 }
 
 const User = new Schema<UserI>({
-  _id: {
+  id: {
     type: Number,
     unique: true
   },
@@ -63,7 +64,7 @@ const User = new Schema<UserI>({
   },
   cart: {
     type: Cart,
-    default: emptyCart
+    default:null 
   },
   shippingAddress: {
     fullname: String,
@@ -99,18 +100,15 @@ User.pre('save', async function(next) {
   const doc = this;
   if(!doc.isNew) next();
   const [error, nextId] = await safeAwait(counter.findByIdAndUpdate({_id: 'user_id'}, {$inc: {seq: 1}, new: true, upsert: true}));
-  console.log('user id')
-  console.log(nextId)
-  console.log(error);
   if(error) throw error;
   if(nextId == null) {
     const seq = await counter.create({_id: 'user_id', seq: 1});
-    doc._id = seq.seq;
+    doc.id = seq.seq;
   } else {
-    doc._id = nextId.seq;
+    doc.id = nextId.seq;
   }
 
-  doc.cart = emptyCart;
+  //doc.cart = emptyCart;
   next();
 });
 

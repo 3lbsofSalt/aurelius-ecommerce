@@ -19,7 +19,10 @@ export interface CartI {
 
 const Cart = new Schema({
   items: [{
-    item: InventoryItemSchema,
+    item: {
+      type: InventoryItemSchema,
+      required: false
+    },
     quantity: Number,
     fieldAnswers: [{ type: String }],
     // Fields are a 2-dimensional array as each item in the cart can have more than one field to fill out
@@ -134,7 +137,7 @@ Cart.methods = {
 */
 
 export const emptyCart: CartI = {
-  items: [],
+  items: [/*{ item: {id: 1}}*/],
   cartQuantity: 0,
   total: 0
 }

@@ -1,7 +1,7 @@
 version: '3.3'
 
 services:
-  www:
+  aurelius-www:
     build:
       context: .
       dockerfile: Dockerfile.dev
@@ -16,6 +16,19 @@ services:
     networks:
       app-network:
         ipv4_address: 192.168.3.50
+
+  # aurelius-db:
+  #   container_name: aurelius_mariadb
+  #   image: mariadb
+  #   environment:
+  #     MYSQL_ROOT_PASSWORD: example
+  #     MYSQL_DATABASE: aurelius
+  #     MYSQL_USER: test
+  #     MYSQL_PASSWORD: example
+  #   volumes:
+  #     - ./data:/var/lib/mysql
+  #   ports:
+  #     - "3306:3306"
 
   mongo:
     container_name: mongo

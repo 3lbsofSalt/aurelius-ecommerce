@@ -12,6 +12,7 @@ export default defineNuxtConfig({
             }
 
             for(const [chunkName, modules] of Object.entries(chunks)) {
+              console.log(id);
               if(modules.some(module => id.includes(module))) {
                 return chunkName;
               }

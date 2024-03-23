@@ -10,12 +10,6 @@ export default defineNuxtConfig({
             const chunks = {
               '@sidebase/nuxt-auth': ['@sidebase/nuxt-auth']
             }
-
-            for(const [chunkName, modules] of Object.entries(chunks)) {
-              if(modules.some(module => id.includes(module))) {
-                return chunkName;
-              }
-            }
           }
         }
       }

@@ -10,10 +10,10 @@ export default defineNuxtConfig({
             const chunks = {
               '@sidebase/nuxt-auth': [
                 '@sidebase/nuxt-auth',
-                'node_modules/@sidebase/nuxt-auth/dist/runtime/server/services/authjs/nuxtAuthHandler.mjs',
-                'node_modules/@sidebase/nuxt-auth/dist/runtime/server/services/index.mjs'
+                path.resolve(__dirname, 'node_modules/@sidebase/nuxt-auth/dist/runtime/server/services/authjs/nuxtAuthHandler.mjs'),
+                path.resolve(__dirname, 'node_modules/@sidebase/nuxt-auth/dist/runtime/server/services/index.mjs')
               ]
-            }
+            };            
 
             for(const [chunkName, modules] of Object.entries(chunks)) {
               if(modules.some(module => id.includes(module))) {

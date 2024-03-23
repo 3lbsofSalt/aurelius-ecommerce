@@ -8,11 +8,14 @@ export default defineNuxtConfig({
         output: {
           manualChunks(id) {
             const chunks = {
-              '@sidebase/nuxt-auth': ['@sidebase/nuxt-auth']
+              '@sidebase/nuxt-auth': [
+                '@sidebase/nuxt-auth',
+                'node_modules/@sidebase/nuxt-auth/dist/runtime/server/services/authjs/nuxtAuthHandler.mjs',
+                'node_modules/@sidebase/nuxt-auth/dist/runtime/server/services/index.mjs'
+              ]
             }
 
             for(const [chunkName, modules] of Object.entries(chunks)) {
-              console.log(id);
               if(modules.some(module => id.includes(module))) {
                 return chunkName;
               }

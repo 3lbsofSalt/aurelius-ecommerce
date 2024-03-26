@@ -12,6 +12,7 @@ COPY . .
 
 RUN npx nuxi prepare
 RUN npm run build
+RUN npm prune
 
 ENV PATH ./node_modules/.bin/:$PATH
 

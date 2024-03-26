@@ -2,16 +2,18 @@
 import defaultTheme from './assets/theme';
 export default defineNuxtConfig({
 
+  /*
   vite: {
     build: {
       rollupOptions: {
         output: {
+          /*
           manualChunks(id) {
             const chunks = {
               '@sidebase/nuxt-auth': [
                 '@sidebase/nuxt-auth',
-                path.resolve(__dirname, 'node_modules/@sidebase/nuxt-auth/dist/runtime/server/services/authjs/nuxtAuthHandler.mjs'),
-                path.resolve(__dirname, 'node_modules/@sidebase/nuxt-auth/dist/runtime/server/services/index.mjs')
+                'node_modules/@sidebase/nuxt-auth/dist/runtime/server/services/authjs/nuxtAuthHandler.mjs',
+                'node_modules/@sidebase/nuxt-auth/dist/runtime/server/services/index.mjs'
               ]
             };            
 
@@ -25,6 +27,7 @@ export default defineNuxtConfig({
       }
     }
   },
+  */
 
   devtools: { enabled: true },
 

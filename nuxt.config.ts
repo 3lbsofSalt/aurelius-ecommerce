@@ -1,24 +1,21 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 import defaultTheme from './assets/theme';
 export default defineNuxtConfig({
+  hooks: {
+    "vite:extendConfig"(config, { isClient })  {
+      config.build.rollupOptions.output.manualChunks = function (_id) {
+        const chunks = {
+          '@sidebase/nuxt-auth': [
+            '@sidebase/nuxt-auth',
+            'authjs',
+            'next-auth'
+          ]
+        };            
 
-  vite: {
-    build: {
-      rollupOptions: {
-        output: {
-          manualChunks(id) {
-            const chunks = {
-              '@sidebase/nuxt-auth': [
-                '@sidebase/nuxt-auth',
-                'authjs'
-              ]
-            };            
-
-            for(const [chunkName, modules] of Object.entries(chunks)) {
-              if(modules.some(module => id.includes(module))) {
-                return chunkName;
-              }
-            }
+        for(const [chunkName, modules] of Object.entries(chunks)) {
+          if(modules.some(module => _id.includes(module))) {
+            console.log(chunkName);
+            return chunkName;
           }
         }
       }

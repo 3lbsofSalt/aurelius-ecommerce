@@ -17,6 +17,7 @@ anything that will run a Dockerfile
 ## Environment Variables
 - `AUTH_ORIGIN` - The origin of the authentication request - `'http://localhost:3000'`
 - `AUTH_SECRET` - A random secret to encode passwords - `'somerandomstring'`
+- `NEXTAUTH_URL` - Set this when the app is in production. It should be the canonical url of the app - `'https://maxramsdell.com'`
 - `MONGODB_NAME` - name of the mongodb database - `'dbname'`
 - `MONGODB_URL` - The url of the mongodb service - `'mongodb://mongo:27017'`
 - `GITHUB_CLIENT_ID` - Client ID for github auth - `'api_key'`

@@ -44,7 +44,6 @@ const { data: productNavigationCategories } = await useFetch<NavigationCategoryI
             <v-row no-gutters>
               <v-col>
                 <div class="text-h2 font-weight-light text-primary">Mountain Valley Printing</div>
-                <div class="text-h2 font-weight-light text-primary">OOF</div>
               </v-col>
             </v-row>
             <v-row

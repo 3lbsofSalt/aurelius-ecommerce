@@ -1,5 +1,4 @@
 <script setup lang="ts">
-console.log('I at least know that it started')
 const authStore = useAuthStore();
 await authStore.checkForSession();
 

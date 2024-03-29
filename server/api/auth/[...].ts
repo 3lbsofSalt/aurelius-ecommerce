@@ -24,28 +24,18 @@ export default NuxtAuthHandler({
     CredentialsProvider.default({
       name: 'Credentials',
       async authorize(credentials: any) {
-        console.log(process.env.AUTH_ORIGIN)
         const logger = useLogger();
+
         const email = credentials.email;
         const password = credentials.password;
 
         const [error, user] = await safeAwait(User.findOne({ email }));
-
-        console.log(error);
-        console.log(user);
-        const [quickErr, quickUser] = await safeAwait(User.find());
-        console.log('quick')
-        console.log(quickErr);
-        console.log(quickUser);
-
 
         if(error) {
           console.log('there was an error');
           logger.error(error);
         }
 
-        console.log('This is the user that I got!');
-        console.log(user);
         if(!error && user && bcrypt.compareSync(password, user.hash)) {
           return user;
         }

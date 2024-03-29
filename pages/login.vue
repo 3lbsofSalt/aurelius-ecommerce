@@ -9,7 +9,7 @@ const email = ref('');
 const password = ref('');
 
 async function handleLogin() {
-  const ret = await signIn('credentials', { callbackUrl: 'https://maxramsdell.com/', email:email.value, password:password.value });
+  const ret = await signIn('credentials', { callbackUrl: '/', email:email.value, password:password.value });
 }
 
 </script>

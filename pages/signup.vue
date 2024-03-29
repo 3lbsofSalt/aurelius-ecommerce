@@ -29,7 +29,7 @@ async function signUp() {
   });
 
   if(res.statusCode === 200) {
-    signIn('credentials', { callbackUrl: 'https://maxramsdell.com/', email: email.value, password: password.value });
+    signIn('credentials', { callbackUrl: '/', email: email.value, password: password.value });
   }
 
 }

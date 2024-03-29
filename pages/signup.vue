@@ -17,6 +17,7 @@ const confirmPasswordRules = [
 ];
 
 async function signUp() {
+  console.log(email.value);
   const res = await $fetch('/api/signup', {
     method: 'POST',
     body: {
@@ -26,9 +27,9 @@ async function signUp() {
       phone: phone.value
     }
   });
-  
-  if(res.status === 200) {
-    signIn('credentials', { email, password });
+
+  if(res.statusCode === 200) {
+    signIn('credentials', { callbackUrl: '/', email: email.value, password: password.value });
   }
 
 }

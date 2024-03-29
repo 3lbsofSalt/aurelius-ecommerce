@@ -47,4 +47,8 @@ export default defineEventHandler(async (event) => {
       statusMessage: 'Server Error'
     });
   }
+
+  return {
+    statusCode: 200
+  };
 });

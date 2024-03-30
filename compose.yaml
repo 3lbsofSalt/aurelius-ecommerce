@@ -30,7 +30,7 @@ services:
     volumes:
       - ./data:/data/db
       - ./backup:/backup
-      - ./scripts:/scripts
+      - ./scripts:/mnt
     networks:
       - app-network
 

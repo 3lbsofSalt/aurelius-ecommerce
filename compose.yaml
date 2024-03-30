@@ -25,15 +25,10 @@ services:
     logging:
       driver: none
     restart: always
-    environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=pass
     ports:
       - "27017:27017"
     volumes:
-      - ./data:/data/db
-      - ./backup:/backup
-      - ./scripts:/mnt
+      - ./scripts:/docker-entrypoint-initdb.d/scripts
     networks:
       - app-network
 

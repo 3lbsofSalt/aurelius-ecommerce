@@ -11,7 +11,7 @@ if(error.value || !routePrivs.value.includes('Users')) {
 }
 
 const headers = [
-  { title: 'Id', value:'_id', align: 'start' },
+  { title: 'Id', value:'id', align: 'start' },
   { title: 'Name', value: 'name' },
   { title: 'Email', value: 'email' },
   { title: 'Phone', value: 'phone' },
